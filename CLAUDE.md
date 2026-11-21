@@ -1,0 +1,37 @@
+# Votex — working rules
+
+Applies to anyone working on Votex (Event Peepo voting platform, hosted at vote.eventpeepo.com), human or Claude worker.
+
+## Source of truth
+- `docs/master-plan.md` is the source of truth for scope, flows, data model and phases. Read it before any task. If something conflicts with it, ask; don't guess.
+- Figma file: https://www.figma.com/design/T5E4ufcU3nSuqgyPJfKchN (file key `T5E4ufcU3nSuqgyPJfKchN`).
+
+## Hard rules
+1. **Figma approval gate.** Screens are designed in Figma and confirmed by the client before any building. No code for a screen, flow or component the client hasn't confirmed in Figma.
+2. **Adaptive design.** Every screen is designed at mobile 390, tablet 768/1024 and desktop 1280 (plus embed widths for voter screens), each redesigned for the device, not stretched. All states and breakpoints are approved in Figma before building.
+3. **Design principles** (master plan §1): mobile first (390×844), one primary action per screen, generous space, minimal text (headings ≤ 6 words), neutral platform / event brings the colour, WCAG 2.2 AA.
+4. **Anti-"AI look" checklist** (master plan §1): reject serif display type, italic subtitles, mono eyebrow labels, "01 —" numbering, violet branding, gradients/glass/glows/emoji, marketing lines in product, grey photo boxes, lorem ipsum, Western placeholder names, pills everywhere, specimen pages.
+5. **Realistic content:** Ghanaian names, events, GH₵ amounts, MoMo networks/numbers, real photo crops, real states.
+6. **Tokens:** named `--vx-*` in code and identically in Figma variables (with WEB code syntax `var(--vx-…)`).
+7. **Integrity:** votes credited only after verified payment webhook; vote ledger append-only; election ballots never linked to voters.
+
+## Skills by role (load before working)
+Every worker loads the best matching skills for its role **before** starting, and at the start of a task searches for more (SearchSkills / plugin catalog) and uses any relevant ones found. Currently the org has no extra custom skills for design, frontend, Supabase or payments, so use these:
+
+| Role | Skills |
+|---|---|
+| Figma — screens | `figma-use` + `figma-generate-design` |
+| Figma — tokens, components | `figma-use` + `figma-generate-library` |
+| Figma ↔ code mapping | `figma-code-connect` |
+| Implementing from Figma | `figma-design-to-code` |
+| Review pages, explainers for the client | `artifact-design` |
+| Charts, dashboards, results/leaderboards | `dataviz` |
+| Frontend / build verification | `run` (launch and check the app); Playwright and Chromium are pre-installed — don't reinstall |
+| Database | Supabase agent skills (`npx skills add supabase/agent-skills`) + Supabase MCP `search_docs` |
+| Quality (before every PR) | `code-review`, `simplify`, `security-review` — **security-review is mandatory** for payments, auth, RLS and ballots |
+
+Figma skills load from the Figma plugin if installed, otherwise from the Figma MCP resources `skill://figma/<name>/SKILL.md`. Pass the skill names in `use_figma`'s `skillNames` (prefix `resource:` when loaded from MCP resources).
+
+## Process
+- Work phase by phase (master plan §14); each phase ends with client sign-off in Figma.
+- Keep the master plan updated when the client decides something; list the decision under the relevant section and remove answered open questions.
