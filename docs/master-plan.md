@@ -11,6 +11,8 @@ Event Peepo Votex: a paid voting, election, nomination, judging and ticketing pl
 
 ## 1. Non-negotiable principles
 
+- **Bulk actions** on every admin list (checkboxes on desktop, press-and-hold on mobile) and **phone gestures only where they help**, each with a visible button too — see AGENTS.md rules 8–9 (decided 22 Nov 2026).
+
 - **Mobile first.** Every voter screen is designed at 390×844 first.
 - **Adaptive, not stretched.** Every screen (voter, dashboard, admin) is redesigned for tablet and desktop: layout, navigation and interaction change to fit the device (split views, side panels, multi-column grids, keyboard and hover). A phone layout widened to fill a big screen is rejected. Breakpoints to design: **mobile 390**, **tablet 768 (portrait) and 1024 (landscape)**, **desktop 1280+**, plus the embed widths (320 / 480 / 720).
 - **Every screen, every state, every breakpoint is in Figma and approved before it is built.**
