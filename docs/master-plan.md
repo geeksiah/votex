@@ -42,7 +42,7 @@ Event Peepo Votex: a paid voting, election, nomination, judging and ticketing pl
 |---|---|
 | Layout | B: contestant photo leads on A2 (full-width 4:5 crop, rounded 16), name + category below, code tag at right |
 | Palette | A: white surfaces, zinc neutrals, hairline borders, **near-black primary buttons**. Event accent only on the event logo mark and selected/focus marks — never on the primary button |
-| Font | Under review: **Familjen Grotesk · Geologica · Epilogue** (Figma page "Type & spacing study"). Hanken Grotesk dropped: it has no ₵ glyph. One family, 400/500/600 |
+| Font | **Familjen Grotesk** (approved 22 Nov 2026), one family, 400/500/600. Full currency glyph set and tabular numerals. Hanken Grotesk dropped (no ₵) |
 | Code entry | **One text field, variable length** (codes are not fixed length). No per-character boxes. Auto-uppercase, no autocorrect |
 | Vote quantity | Quick picks **1 · 5 · 10 · 50** + **Custom** — voter types any amount; min/max from voting rules, inline error if outside |
 | Done | Contestant photo with check badge, "N votes added", receipt card (reference, amount, method, date) |
@@ -62,7 +62,7 @@ Event Peepo Votex: a paid voting, election, nomination, judging and ticketing pl
 
 ### Layout & spacing
 - 4pt base. Spacing scale: 4 · 8 · 12 · 16 · 20 · 24 · 32 · 48 · 64.
-- Refined rhythm (Nov 2026 study): mobile side margin **24**; event header 64; title block 32 top / 8 / 24 to search; search field 52; list rows 76 with 4 between name and meta; group headers 24 above / 8 below; primary button 56; quick-pick chips 52; receipt card radius 16. Desktop: 40 outer padding, 320 list pane with 24 padding, 24 grid gutters.
+- Refined rhythm (approved 22 Nov 2026): mobile side margin **24**; event header 64; title block 32 top / 8 / 24 to search; search field 52; list rows 76 with 4 between name and meta; group headers 24 above / 8 below; primary button 56; quick-pick chips 52; receipt card radius 16. Desktop: 40 outer padding, 320 list pane with 24 padding, 24 grid gutters.
 - Mobile: 24px side margins, single column, primary action pinned in the thumb zone (bottom, safe-area aware).
 - Voter flow on tablet/desktop: redesigned, not a centred phone column. Pattern: event header bar on top; categories in a left pane (with search) and the selected category's contestants in the main area; contestant voting opens in a side panel (desktop) or sheet (tablet). Exact layouts are approved per screen in Figma.
 - Dashboard: sidebar + content, 12-col grid at ≥ 1024; collapses to bottom nav / stacked on mobile. Fully usable on a phone (organisers run events from phones).
