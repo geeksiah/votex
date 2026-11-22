@@ -172,8 +172,8 @@ Judge signs in (email OTP) → list of entries for assigned category → per ent
 Contestant signs in (phone OTP) → personal link + QR → share cards for WhatsApp status / Instagram (auto-generated) → own vote count (only if organiser allows).
 
 ### Results page & live screen
-- Public results page only if the event allows it; respects "percentages only / top N / hidden".
-- **Live results screen (TV/LED):** 16:9 full-screen leaderboard with photos, bars, QR "scan to vote" and total votes; auto-updates; safe for broadcast (large type, high contrast). Election results shown only after close.
+- Public results page only if the event allows it; respects "percentages only / top N / hidden". Ranked horizontal bars in one colour, each labelled with its share; tooltips with exact votes on hover; table view for screen readers.
+- **Live results screen (TV/LED):** 16:9 full-screen leaderboard with photos, bars, QR "scan to vote" and total votes; auto-updates; safe for broadcast (large type, high contrast). Election results shown only after close. **Theme: light or dark, chosen by the organiser per screen** (light for bright halls and daytime, dark for stage and LED walls). Shows the top N set by the organiser so the "Scan to vote" footer always stays visible.
 
 ---
 
