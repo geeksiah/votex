@@ -179,6 +179,13 @@ Dial the event's USSD code (built from settings, never hardcoded):
 - Shortcut: voters can add the contestant code, e.g. `*800*4*017#`, and skip step 1.
 - Shown everywhere from one source: Share & embed, posters, receipts, event page.
 
+**USSD votes land in the same system (decided 22 Nov 2026).** USSD is another way in, not a separate system.
+- The USSD provider sends each menu step to our server. We run the menu, check the event and contestant codes, and work out the price from the same settings as the web.
+- Payment uses Paystack's mobile money charge from our server (no web page): the voter gets the MoMo prompt on the same phone.
+- Votes are credited only after Paystack's signed webhook confirms payment — the same rule as web votes. Unpaid or timed-out sessions never count.
+- Every vote is stored in one ledger with its channel (web, embed, USSD, ticket, offline). Live results, the TV screen, transactions, receipts, payouts, fraud checks and the audit report all read from that ledger.
+- Dashboards can show votes and money split by channel.
+
 Deliverable: USSD menu tree (all screens ≤ 160 chars, every error path) + SMS receipt copy. Menus must fit short USSD session timeouts.
 
 ### Flow E — Nominate
