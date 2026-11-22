@@ -232,12 +232,16 @@ Contestant signs in (phone OTP) → personal link + QR → share cards for Whats
 - Money taken by a provider that cannot split (e.g. a USSD gateway with its own payments) lands with Votex and shows as "Paid by Votex", paid out on a fixed schedule. This is the only case with a Votex payout.
 - To confirm at build time: Paystack subaccount settlement to mobile money in Ghana, and refund handling for split transactions.
 
-### Email first; SMS is a paid add-on (decided 22 Nov 2026)
-- All sign-in codes, invites, receipts and reminders go by **email** by default: organisers, team, judges, contestants, voters who give an email, election voters (school or work email).
-- **SMS** (phone codes, SMS invites, SMS receipts, SMS reminders) is a **paid add-on per event**. The platform owner switches it on for an event and sets the price (per SMS or a bundle). The organiser can then turn on each SMS use in their event settings, and sees SMS used and cost.
-- Without the add-on: voters still get the MoMo prompt and the network's own payment SMS; our receipt is shown on screen and emailed if they gave an email. USSD voters see the result on the USSD screen.
-- Owner security codes for sensitive actions (settlement account change) go by email plus the authenticator option; no SMS needed.
-- Screens that mention SMS today (offline-vote reminders, "Receipt sent by SMS", election "code by SMS") show the SMS version as the add-on state; the default copy says "email".
+### Email first; SMS is a paid add-on per client (decided 22 Nov 2026)
+- **Default for every client (organiser account): email only.** All one-time codes and notifications go by email.
+- **SMS add-on is a toggle per client, set by the platform owner** (Platform admin → Clients → SMS). When a client pays for SMS, the platform owner switches it on for that client; it then applies to all their events.
+- **When SMS is on, messages go by email AND SMS:**
+  - every one-time code (organiser and team sign-in, judges, contestants, voters, election voters, approvals) goes to both email and phone;
+  - every one-to-one notification (invites, receipts, approval requests, payout and settlement alerts, fraud flags to the owner) goes to both.
+- **Bulk sends always go by email only, even with SMS on.** A send is bulk when one action messages many people at once — e.g. "Text all contestants", register-wide turnout reminders, nomination-round announcements, reports and digests. Rule: any single send to more than a set number of people (platform setting, default 50) routes to email only. One-to-one messages triggered per person are never treated as bulk.
+- The platform owner sets the SMS price per client (flat fee, bundle or per SMS) and sees SMS sent and cost per client. The client sees "SMS: on" and their usage in settings; they cannot turn it on themselves.
+- Without SMS: voters still get the MoMo prompt and the network's payment SMS; our receipt shows on screen and by email if given. USSD voters see the result on the USSD screen.
+- Copy rule: screens say "by email" by default; with SMS on, "by email and SMS".
 
 ### Currency (never hardcoded)
 - Every amount is stored as an **integer in minor units plus an ISO 4217 currency code** (e.g. `500, "GHS"`). No currency symbol, decimal rule or "GH₵" string is hardcoded anywhere in code, copy or templates.
