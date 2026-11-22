@@ -17,6 +17,7 @@ Event Peepo Votex: a paid voting, election, nomination, judging and ticketing pl
 - **One primary action per screen.** Anything secondary is a quiet text link or lives behind a menu.
 - **Generous space, nothing crowded.** If a screen feels busy, split it or cut content.
 - **Minimal text.** Headings ≤ 6 words. No marketing voice in the product. Numbers before sentences.
+- **Plain language with verbs.** Every label, button and message is simple, short and starts with what to do ("Enter your number", "Try again"). Errors say what happened and what to do next, never blame the user.
 - **The platform is neutral; the event brings the colour.** Each tenant/event sets its accent and logo, so the widget fits any host site.
 - **Contrast-ready.** WCAG 2.2 AA minimum in every state, including tenant accents (checked automatically).
 - **Figma confirmation before build.** Every screen is confirmed by the client in Figma before any code is written for it.
@@ -305,7 +306,7 @@ Each phase ends with client sign-off **in Figma**. No build work starts on any s
 | 0. Setup | Repo, Figma connected, AGENTS.md (working rules) | ✅ Done |
 | 1. Direction | 3 directions (A1 + A2 + A5) side by side → chosen: B layout + A palette; refined screens | ✅ Approved 21 Nov 2026 (A5 exits + event page added) |
 | 2. Foundations | Tokens (code + Figma variables), type, spacing, 15–20 core components (button, input, code input, quick picks + custom, contestant card, sheet, toast, table, nav…) | ✅ Approved 22 Nov 2026: vx tokens (colour light/dark, space, radius), 13 Familjen text styles, 20 components on the Figma "Components" page |
-| 3. Voter flows | Flows A–G, all states, judge scoring, contestant portal, results page + live TV/LED screen — each at mobile 390, tablet 768/1024, desktop 1280 and embed widths; USSD tree | Approve |
+| 3. Voter flows (B1, B2 ✅ approved 22 Nov 2026) | Flows A–G, all states, judge scoring, contestant portal, results page + live TV/LED screen — each at mobile 390, tablet 768/1024, desktop 1280 and embed widths; USSD tree | Approve |
 | 4. Dashboard | O1–O19 incl. rounds, nominations, judges, voter register, ticketing/check-in, offline votes; desktop 1280, tablet 1024/768 and mobile 390, each redesigned for the device | Approve |
 | 5. Admin & edge cases | Platform admin, empty/error states, emails/SMS, judge app polish | Approve → build |
 | 6. Build | DB + RLS, auth, voter flows, payments (sandbox), USSD, elections, judging, ticketing, dashboard, embed + WP plugin, load test, deploy | UAT |

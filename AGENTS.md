@@ -11,6 +11,7 @@ Applies to anyone working on Votex (Event Peepo voting platform, hosted at vote.
 1. **Figma approval gate.** Screens are designed in Figma and confirmed by the client before any building. No code for a screen, flow or component the client hasn't confirmed in Figma.
 2. **Adaptive design.** Every screen is designed at mobile 390, tablet 768/1024 and desktop 1280 (plus embed widths for voter screens), each redesigned for the device, not stretched. All states and breakpoints are approved in Figma before building.
 3. **Design principles** (master plan §1): mobile first (390×844), one primary action per screen, generous space, minimal text (headings ≤ 6 words), neutral platform / event brings the colour, WCAG 2.2 AA.
+3a. **Plain language.** Every word in the product is simple, short and easy to understand, and leads with a verb: "Enter your number", "Approve on your phone", "Try again", "Vote again for Kobby". No jargon, no marketing lines, no blame ("Payment declined. No money was taken." not "Your transaction failed").
 4. **Anti-"AI look" checklist** (master plan §1): reject serif display type, italic subtitles, mono eyebrow labels, "01 —" numbering, violet branding, gradients/glass/glows/emoji, marketing lines in product, grey photo boxes, lorem ipsum, Western placeholder names, pills everywhere, specimen pages.
 5. **Realistic content:** Ghanaian names, events, GH₵ amounts, MoMo networks/numbers, real photo crops, real states.
 6. **Tokens:** named `--vx-*` in code and identically in Figma variables (with WEB code syntax `var(--vx-…)`).
