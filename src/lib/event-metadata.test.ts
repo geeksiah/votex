@@ -28,4 +28,20 @@ describe("event link previews", () => {
     expect(m.title).toEqual({ absolute: "Results · Miss Ashanti 2026" });
     expect(m.openGraph?.url).toBe("https://vote.eventpeepo.com/miss-ashanti-2026/results");
   });
+
+  it("shows the contestant on their own link", () => {
+    const contestant = { code: "AMA07", name: "Ama Serwaa", photoPath: "akoma/ama-serwaa.jpg" };
+    const m = eventMetadata(event, { ...opts, path: "/c/AMA07", contestant });
+    const images = m.openGraph?.images as Array<{ url: string; alt: string }>;
+    expect(images[0]!.url).toBe("https://abc.supabase.co/storage/v1/object/public/contestant-photos/akoma/ama-serwaa.jpg");
+    expect(images[0]!.alt).toBe("Ama Serwaa");
+    expect(m.title).toEqual({ absolute: "Ama Serwaa (AMA07) · Miss Ashanti 2026" });
+    expect(m.description).toBe("Vote for Ama Serwaa in Miss Ashanti 2026. Code AMA07.");
+  });
+
+  it("falls back to the event cover when a contestant has no photo", () => {
+    const m = eventMetadata(event, { ...opts, contestant: { code: "KOB14", name: "Kobby Mensah", photoPath: null } });
+    const images = m.openGraph?.images as Array<{ url: string }>;
+    expect(images[0]!.url).toContain("/event-covers/");
+  });
 });

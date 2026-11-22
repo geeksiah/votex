@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 
-// Link previews for every public event page (decided 22 Nov 2026): title, short description and the
-// event cover. No cover yet: a generated card (logo, name, accent) served from /og/event/{slug}.
+// Link previews (master plan §2, "Images and link previews", decided 22 Nov 2026):
+// - every public event page: title, short description and the event cover;
+// - contestant pages and links: the contestant's photo, name and code;
+// - no image set: the event cover, then a generated card (logo, name, accent) from /og/event/{slug}.
+// A cover is optional; publishing never waits for one.
 
 export type EventPreview = {
   slug: string;
@@ -11,12 +14,19 @@ export type EventPreview = {
   tenantName: string;
 };
 
+export type ContestantPreview = {
+  code: string;
+  name: string;
+  photoPath: string | null; // path inside the "contestant-photos" storage bucket
+};
+
 export const COVER_BUCKET = "event-covers";
+export const PHOTO_BUCKET = "contestant-photos";
 export const OG_SIZE = { width: 1200, height: 630 } as const;
 
-export function coverUrl(coverPath: string, supabaseUrl: string): string {
-  const path = coverPath.split("/").map(encodeURIComponent).join("/");
-  return `${supabaseUrl.replace(/\/$/, "")}/storage/v1/object/public/${COVER_BUCKET}/${path}`;
+export function storageUrl(bucket: string, path: string, supabaseUrl: string): string {
+  const safePath = path.split("/").map(encodeURIComponent).join("/");
+  return `${supabaseUrl.replace(/\/$/, "")}/storage/v1/object/public/${bucket}/${safePath}`;
 }
 
 type Options = {
@@ -24,18 +34,27 @@ type Options = {
   supabaseUrl: string;
   /** Page inside the event, e.g. "/results". Defaults to the event page. */
   path?: string;
-  /** Page-specific title, e.g. "Results" or a contestant's name. */
+  /** Page-specific title, e.g. "Results". */
   pageTitle?: string;
+  /** Set on a contestant's own page so the preview shows them. */
+  contestant?: ContestantPreview;
 };
 
-export function eventMetadata(event: EventPreview, { siteUrl, supabaseUrl, path = "", pageTitle }: Options): Metadata {
+export function eventMetadata(event: EventPreview, { siteUrl, supabaseUrl, path = "", pageTitle, contestant }: Options): Metadata {
   const base = siteUrl.replace(/\/$/, "");
   const url = `${base}/${event.slug}${path}`;
-  const title = pageTitle ? `${pageTitle} · ${event.name}` : event.name;
-  const description = event.description?.trim() || `Vote in ${event.name}, by ${event.tenantName}.`;
-  const image = event.coverPath
-    ? { url: coverUrl(event.coverPath, supabaseUrl), alt: event.name }
-    : { url: `${base}/og/event/${event.slug}`, ...OG_SIZE, alt: event.name };
+  const heading = contestant ? `${contestant.name} (${contestant.code})` : pageTitle;
+  const title = heading ? `${heading} · ${event.name}` : event.name;
+  const description = contestant
+    ? `Vote for ${contestant.name} in ${event.name}. Code ${contestant.code}.`
+    : event.description?.trim() || `Vote in ${event.name}, by ${event.tenantName}.`;
+
+  const alt = contestant ? contestant.name : event.name;
+  const image = contestant?.photoPath
+    ? { url: storageUrl(PHOTO_BUCKET, contestant.photoPath, supabaseUrl), alt }
+    : event.coverPath
+      ? { url: storageUrl(COVER_BUCKET, event.coverPath, supabaseUrl), alt }
+      : { url: `${base}/og/event/${event.slug}`, ...OG_SIZE, alt };
 
   return {
     title: { absolute: title },
