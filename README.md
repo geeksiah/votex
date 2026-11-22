@@ -7,3 +7,5 @@ Event Peepo Votex: paid voting, elections, nominations, judging and ticketing fo
 - Designs (Figma): https://www.figma.com/design/T5E4ufcU3nSuqgyPJfKchN
 
 Status: design phase. Nothing is built until its screens are approved in Figma.
+
+New to the project? Start with [docs/handoff.md](docs/handoff.md).
