@@ -221,10 +221,11 @@ Contestant signs in (phone OTP) → personal link + QR → share cards for Whats
 ### Split payments and settlement (decided 22 Nov 2026)
 - Each verified organiser gets a Paystack **subaccount** (created when they add their payout account in onboarding).
 - Every charge carries the organiser's subaccount and the Votex fee, so Paystack **splits the money at checkout**: the organiser's share settles straight to their bank or MoMo account on Paystack's schedule (next working day); the Votex fee settles to Votex. Votex never holds organiser money from Paystack, so there is **no manual withdraw** for it.
-- Who pays the Paystack fee (organiser share or Votex fee) is a setting per plan; default: taken from the organiser share.
+- The Paystack fee is paid from the organiser's share (Paystack `bearer` = subaccount).
+- The Votex fee is a percentage of each payment, set by the platform owner in platform settings (stored as a number, never hardcoded). It is applied as the split on every charge.
 - Finance shows: paid to you, on the way, how each payment was split, settlements from Paystack (matched daily to our ledger), and the settlement account.
 - Changing the settlement account (updates the Paystack subaccount): code to the owner's phone, a second admin approves, the new account starts after 24 hours, and the whole team is emailed.
-- New or flagged organisers can be put on a slower Paystack settlement schedule (e.g. weekly) by platform staff, to leave time for disputes.
+- Everyone settles next working day (Paystack's standard schedule). No slower schedules.
 - Refunds and chargebacks: because the organiser's share has already settled, a refund is recovered from the organiser's next settlements; the dashboard shows it as a deduction with the payment reference.
 - Money taken by a provider that cannot split (e.g. a USSD gateway with its own payments) lands with Votex and shows as "Paid by Votex", paid out on a fixed schedule. This is the only case with a Votex payout.
 - To confirm at build time: Paystack subaccount settlement to mobile money in Ghana, and refund handling for split transactions.
