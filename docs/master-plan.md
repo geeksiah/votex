@@ -218,6 +218,17 @@ Contestant signs in (phone OTP) → personal link + QR → share cards for Whats
 
 ## 5. Payments & money flow
 
+### Split payments and settlement (decided 22 Nov 2026)
+- Each verified organiser gets a Paystack **subaccount** (created when they add their payout account in onboarding).
+- Every charge carries the organiser's subaccount and the Votex fee, so Paystack **splits the money at checkout**: the organiser's share settles straight to their bank or MoMo account on Paystack's schedule (next working day); the Votex fee settles to Votex. Votex never holds organiser money from Paystack, so there is **no manual withdraw** for it.
+- Who pays the Paystack fee (organiser share or Votex fee) is a setting per plan; default: taken from the organiser share.
+- Finance shows: paid to you, on the way, how each payment was split, settlements from Paystack (matched daily to our ledger), and the settlement account.
+- Changing the settlement account (updates the Paystack subaccount): code to the owner's phone, a second admin approves, the new account starts after 24 hours, and the whole team is emailed.
+- New or flagged organisers can be put on a slower Paystack settlement schedule (e.g. weekly) by platform staff, to leave time for disputes.
+- Refunds and chargebacks: because the organiser's share has already settled, a refund is recovered from the organiser's next settlements; the dashboard shows it as a deduction with the payment reference.
+- Money taken by a provider that cannot split (e.g. a USSD gateway with its own payments) lands with Votex and shows as "Paid by Votex", paid out on a fixed schedule. This is the only case with a Votex payout.
+- To confirm at build time: Paystack subaccount settlement to mobile money in Ghana, and refund handling for split transactions.
+
 ### Currency (never hardcoded)
 - Every amount is stored as an **integer in minor units plus an ISO 4217 currency code** (e.g. `500, "GHS"`). No currency symbol, decimal rule or "GH₵" string is hardcoded anywhere in code, copy or templates.
 - **Event currency** is set per event (tenant default first) and locked once voting/ticket sales open. Prices, totals, receipts, payouts and fees use it.
@@ -278,7 +289,7 @@ Adaptive; designed at 1280 first, then redesigned (not shrunk) for tablet and mo
 | O12 | Voting rules (table in §3) | Save |
 | O13 | Offline votes entry (permissioned, evidence required) | Add entry |
 | O14 | Transactions (filter, refund, export CSV) | Export |
-| O15 | Finance: balance, fees, payouts | Withdraw |
+| O15 | Finance: paid to you, on the way, split per payment, settlements from Paystack, settlement account (no manual withdraw for Paystack money) | Change account |
 | O16 | Share & embed: links, QR per contestant/category, USSD code, embed snippet, WordPress, live screen link | Copy |
 | O17 | Contestant portal settings (share cards, own-count visibility) | Save |
 | O18 | Team & roles | Invite |
