@@ -237,7 +237,8 @@ Contestant signs in (phone OTP) → personal link + QR → share cards for Whats
 - **SMS add-on is a toggle per client, set by the platform owner** (Platform admin → Clients → SMS). When a client pays for SMS, the platform owner switches it on for that client; it then applies to all their events.
 - **When SMS is on, messages go by email AND SMS:**
   - every one-time code (organiser and team sign-in, judges, contestants, voters, election voters, approvals) goes to both email and phone;
-  - every one-to-one notification (invites, receipts, approval requests, payout and settlement alerts, fraud flags to the owner) goes to both.
+  - every one-to-one notification (invites, ticket and organiser receipts, approval requests, settlement alerts, fraud flags to the owner) goes to both.
+  - **Exception: voter payment receipts never go by SMS.** They stay on screen and by email (if given); the MoMo network already sends its own payment SMS.
 - **Bulk sends always go by email only, even with SMS on.** A send is bulk when one action messages many people at once — e.g. "Text all contestants", register-wide turnout reminders, nomination-round announcements, reports and digests. Rule: any single send to more than a set number of people (platform setting, default 50) routes to email only. One-to-one messages triggered per person are never treated as bulk.
 - The platform owner sets the SMS price per client (flat fee, bundle or per SMS) and sees SMS sent and cost per client. The client sees "SMS: on" and their usage in settings; they cannot turn it on themselves.
 - Without SMS: voters still get the MoMo prompt and the network's payment SMS; our receipt shows on screen and by email if given. USSD voters see the result on the USSD screen.
