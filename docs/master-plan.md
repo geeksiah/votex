@@ -127,14 +127,14 @@ Tenant (organiser) ──< Event ──< Stage/Round ──< Category ──< Ca
 |---|---|---|---|
 | A1 | Category | Event logo, category name, price, one code field (variable length) | Find · quiet: "Browse contestants" |
 | A2 | Contestant | Photo (4:5), name, category, code; quick picks 1/5/10/50 + Custom (paid only) | Vote · GH₵ X (free: Vote) |
-| A3 | Pay | Phone number field (network auto-detected from prefix), amount | Pay GH₵ X · quiet: "Pay with card" |
-| A4 | Approve | "Approve on your phone" + countdown, auto-polls | none (waits) · quiet: "Resend prompt" |
+| A3 | Pay | Order summary (photo, name, votes, amount) + choose **Mobile money** or **Card** | Pay GH₵ X → redirect to Paystack checkout for the chosen method |
+| A4 | Confirming | Shown when the voter returns from Paystack: "Confirming your payment", polls until the verified webhook | none (waits) · quiet: "Check again" |
 | A5 | Done | ✓, votes added, receipt (ref, amount, method, date) | Vote again for <contestant> (same person, back to A2) · quiet: "All categories" (→ event page) · "Results" (only if the event shows results) |
 
 States to design: wrong code (inline on A1), voting not started / closed / paused (A1), custom amount below min / above max (A2), limit reached (A2), payment declined / timed out / insufficient funds (A4 → retry), network error, OTP needed (A2b), payment pending (late MoMo approval).
 
 - A2b OTP (only if required): phone → 6-digit code → returns to A2 action.
-- Card: A3 link opens Paystack card checkout, returns to A4/A5.
+- **Paystack hosted checkout:** Votex initializes the transaction with `channels: ["mobile_money"]` or `["card"]` (from the voter's choice), redirects to Paystack's `authorization_url`, and Paystack returns to our callback. MoMo prompts, PINs and card 3-D Secure all happen on Paystack's page, not ours.
 - Free + no verification: A2 → A5 directly.
 
 ### Flow B — Browse
@@ -187,7 +187,7 @@ Contestant signs in (phone OTP) → personal link + QR → share cards for Whats
 - Payment rails, fees and payout methods are configured **per country/currency**; Ghana (GHS via Paystack/Hubtel) is the first market, others are added by configuration, not code changes.
 - Platform fee is defined per currency (percentage and/or fixed in minor units).
 
-- **Rails:** Paystack (Ghana) — MTN MoMo, Telecel Cash, AirtelTigo Money and cards via the Charge API; amounts in GHS. Votes/tickets credited **only after a verified `charge.success` webhook**.
+- **Rails:** Paystack (Ghana) **hosted checkout** — the voter picks Mobile money or Card on Votex, then pays on Paystack's page (MTN MoMo, Telecel Cash, AirtelTigo Money, cards); amounts in GHS. Votes/tickets credited **only after a verified `charge.success` webhook**.
 - **USSD:** Hubtel (USSD + its MoMo collection), or another licensed aggregator (Nalo, Hellio) on better terms.
 - **Custody (recommended):** Paystack **split payments / subaccounts** — each tenant's share settles to the tenant, the platform fee is taken automatically. Avoid Event Peepo holding tenant money. **Legal check required** on Bank of Ghana licensing (Payment Systems and Services Act, 2019, Act 987) before choosing any custodial model.
 - **Fee pass-through:** organiser chooses per event — voter pays a convenience fee, or organiser absorbs it.
