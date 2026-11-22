@@ -42,7 +42,7 @@ Event Peepo Votex: a paid voting, election, nomination, judging and ticketing pl
 |---|---|
 | Layout | B: contestant photo leads on A2 (full-width 4:5 crop, rounded 16), name + category below, code tag at right |
 | Palette | A: white surfaces, zinc neutrals, hairline borders, **near-black primary buttons**. Event accent only on the event logo mark and selected/focus marks — never on the primary button |
-| Font | Hanken Grotesk (one family, 400/500/600). **₵ (U+20B5) glyph still to verify** in the font itself; fallback: Inter |
+| Font | Under review: **Familjen Grotesk · Geologica · Epilogue** (Figma page "Type & spacing study"). Hanken Grotesk dropped: it has no ₵ glyph. One family, 400/500/600 |
 | Code entry | **One text field, variable length** (codes are not fixed length). No per-character boxes. Auto-uppercase, no autocorrect |
 | Vote quantity | Quick picks **1 · 5 · 10 · 50** + **Custom** — voter types any amount; min/max from voting rules, inline error if outside |
 | Done | Contestant photo with check badge, "N votes added", receipt card (reference, amount, method, date) |
@@ -51,6 +51,7 @@ Event Peepo Votex: a paid voting, election, nomination, judging and ticketing pl
 - Scale (px): 13 · 15 · 17 · 20 · 24 · 32 · 40. Weights: 400 / 500 / 600 only.
 - Body 15–17, line height 1.45. Headings tight (1.15), slight negative tracking only at ≥ 24.
 - Tabular numerals for vote counts and money; legible at 13px.
+- **Glyph requirement:** the family must contain the currency symbols of every market we may open (at least ₵ ₦ € £ $ ₹) and tabular numerals. Checked against the actual font files, not the design tool's fallback. Fonts that failed: Hanken Grotesk, Instrument Sans, Onest, Geist, Schibsted Grotesk, Host Grotesk, Funnel Sans, Figtree (no ₵).
 
 ### Colour
 - Neutral scale: zinc-like cool grey, 50→950, plus white/black.
@@ -61,7 +62,8 @@ Event Peepo Votex: a paid voting, election, nomination, judging and ticketing pl
 
 ### Layout & spacing
 - 4pt base. Spacing scale: 4 · 8 · 12 · 16 · 20 · 24 · 32 · 48 · 64.
-- Mobile: 20px side margins, single column, primary action pinned in the thumb zone (bottom, safe-area aware).
+- Refined rhythm (Nov 2026 study): mobile side margin **24**; event header 64; title block 32 top / 8 / 24 to search; search field 52; list rows 76 with 4 between name and meta; group headers 24 above / 8 below; primary button 56; quick-pick chips 52; receipt card radius 16. Desktop: 40 outer padding, 320 list pane with 24 padding, 24 grid gutters.
+- Mobile: 24px side margins, single column, primary action pinned in the thumb zone (bottom, safe-area aware).
 - Voter flow on tablet/desktop: redesigned, not a centred phone column. Pattern: event header bar on top; categories in a left pane (with search) and the selected category's contestants in the main area; contestant voting opens in a side panel (desktop) or sheet (tablet). Exact layouts are approved per screen in Figma.
 - Dashboard: sidebar + content, 12-col grid at ≥ 1024; collapses to bottom nav / stacked on mobile. Fully usable on a phone (organisers run events from phones).
 - Radius: 8 (inputs, small), 12 (cards, buttons), 16 (sheets, photos). Hairline borders (1px neutral-200) instead of shadows; one soft shadow level for sheets only.
@@ -175,6 +177,14 @@ Contestant signs in (phone OTP) → personal link + QR → share cards for Whats
 ---
 
 ## 5. Payments & money flow
+
+### Currency (never hardcoded)
+- Every amount is stored as an **integer in minor units plus an ISO 4217 currency code** (e.g. `500, "GHS"`). No currency symbol, decimal rule or "GH₵" string is hardcoded anywhere in code, copy or templates.
+- **Event currency** is set per event (tenant default first) and locked once voting/ticket sales open. Prices, totals, receipts, payouts and fees use it.
+- Formatting uses the locale-aware number formatter (`Intl.NumberFormat` with the currency code and the viewer's locale), so ₵, ₦, KSh, R, CFA, $, € etc. all render correctly.
+- **Voter display conversion (optional per event):** show an approximate amount in the voter's currency next to the real one ("≈ ₦ 1,240"). The charge is always in the event currency; the FX rate, its source and timestamp are saved on the order.
+- Payment rails, fees and payout methods are configured **per country/currency**; Ghana (GHS via Paystack/Hubtel) is the first market, others are added by configuration, not code changes.
+- Platform fee is defined per currency (percentage and/or fixed in minor units).
 
 - **Rails:** Paystack (Ghana) — MTN MoMo, Telecel Cash, AirtelTigo Money and cards via the Charge API; amounts in GHS. Votes/tickets credited **only after a verified `charge.success` webhook**.
 - **USSD:** Hubtel (USSD + its MoMo collection), or another licensed aggregator (Nalo, Hellio) on better terms.
