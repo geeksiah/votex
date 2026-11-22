@@ -10,7 +10,7 @@ Three releases. Each one is usable on its own, and each ends with a pilot on a r
 | Release | Goal | What is in it |
 |---|---|---|
 | **R1 · Paid voting** | Run a full paid awards or pageant event end to end | Organiser sign-in and onboarding, verification, Paystack subaccount; create event (7 steps); categories (incl. own price, no-category events), contestants and CSV import; voting rules; voter flows (event page, categories, vote by code, browse, direct link/QR, MoMo or card via Paystack, confirming, receipt); split settlement; results page and live TV/LED screen with remote control; share and embed (links, QR, widget); transactions, refunds, finance; team and roles; activity log and audit report; platform admin (clients, verification, settings, staff and roles, payments, overview); bulk actions on every admin list; all edge states; emails |
-| **R2 · Reach and safety** | More votes from more people, safely | USSD voting (`*800*N#`, payment adapter), contestant portal and share cards, offline votes with second approval, fraud flags and review, disputes, SMS add-on (per client), WordPress plugin |
+| **R2 · Reach and safety** | More votes from more people, safely | Contestant portal and share cards, offline votes with second approval, fraud flags and review, disputes, SMS add-on (per client), WordPress plugin. **USSD voting moves to "Later"** (no budget yet); USSD codes and copy stay hidden until it is switched on |
 | **R3 · More event types** | Sell to schools, unions, festivals | Elections (voter register, secret ballot, turnout), nominations with form builder, rounds with judges' scores (judge portal), tickets and check-in scanner |
 
 ## 2. Order of work (R1)
@@ -49,7 +49,7 @@ R2 and R3 follow the same pattern.
 | 6 | **Numbers** | Step 2 | Votex fee %, SMS prices, the bulk limit (default 50). Example values are used until then. |
 | 7 | **Legal pages** | Step 8 | Terms, privacy policy and refund policy (I can draft them for your lawyer to check). |
 | 8 | **Pilot event** | Step 8 | A real client willing to run the first event. |
-| 9 | **USSD and SMS providers** | R2 | Provider accounts and the base code (e.g. `*800#`). |
+| 9 | **USSD and SMS providers** | Later | Deferred (22 Nov 2026): no USSD budget yet. Built behind a switch so it can be added later without changes to voter or dashboard screens. |
 
 ## 5. How we work
 
