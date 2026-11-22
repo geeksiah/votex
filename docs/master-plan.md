@@ -208,6 +208,8 @@ Event page → ticket type + quantity → pay (same MoMo/card rails) → QR tick
 Judges have their own portal, separate from the dashboard. Judge signs in (email OTP) → home with assigned categories and progress → contestant list with search by name or code and filters (Not scored / Scored); on tablet the list and scoring sit side by side → per entry: photo, name, criteria sliders/number fields with weights → Save → Submit all (locks scores). Works on a tablet at the venue.
 
 ### Contestant portal
+**Access (decided 22 Nov 2026).** The organiser adds each contestant's email when adding them (O7). We email an invite with a one-tap sign-in button (valid 24 hours). After that, contestants sign in at `vote.eventpeepo.com/me` with an email code, no password. If a contestant is in several categories or events, they pick which page to open. Their page is a full page, not a card: big photo, name, category and code, votes (if allowed), share buttons, link, USSD shortcut, and 9:16 share cards. Designed in Figma "O17b".
+
 Contestant signs in (phone OTP) → personal link + QR → share cards for WhatsApp status / Instagram (auto-generated) → own vote count (only if organiser allows).
 
 ### Results page & live screen
@@ -229,6 +231,13 @@ Contestant signs in (phone OTP) → personal link + QR → share cards for Whats
 - Refunds and chargebacks: because the organiser's share has already settled, a refund is recovered from the organiser's next settlements; the dashboard shows it as a deduction with the payment reference.
 - Money taken by a provider that cannot split (e.g. a USSD gateway with its own payments) lands with Votex and shows as "Paid by Votex", paid out on a fixed schedule. This is the only case with a Votex payout.
 - To confirm at build time: Paystack subaccount settlement to mobile money in Ghana, and refund handling for split transactions.
+
+### Email first; SMS is a paid add-on (decided 22 Nov 2026)
+- All sign-in codes, invites, receipts and reminders go by **email** by default: organisers, team, judges, contestants, voters who give an email, election voters (school or work email).
+- **SMS** (phone codes, SMS invites, SMS receipts, SMS reminders) is a **paid add-on per event**. The platform owner switches it on for an event and sets the price (per SMS or a bundle). The organiser can then turn on each SMS use in their event settings, and sees SMS used and cost.
+- Without the add-on: voters still get the MoMo prompt and the network's own payment SMS; our receipt is shown on screen and emailed if they gave an email. USSD voters see the result on the USSD screen.
+- Owner security codes for sensitive actions (settlement account change) go by email plus the authenticator option; no SMS needed.
+- Screens that mention SMS today (offline-vote reminders, "Receipt sent by SMS", election "code by SMS") show the SMS version as the add-on state; the default copy says "email".
 
 ### Currency (never hardcoded)
 - Every amount is stored as an **integer in minor units plus an ISO 4217 currency code** (e.g. `500, "GHS"`). No currency symbol, decimal rule or "GH₵" string is hardcoded anywhere in code, copy or templates.
