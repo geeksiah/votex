@@ -117,6 +117,16 @@ Tenant (organiser) ──< Event ──< Stage/Round ──< Category ──< Ca
 | Channels | Web · Embed · USSD (each on/off) | All |
 | Lock | Rules lock when voting opens; any later change needs a reason and is logged and shown in the audit | All |
 
+### Vote price per category (decided 22 Nov 2026)
+
+- Each event has one default price per vote, set in step 6 of the create wizard. The wizard stays simple: it shows the number ("Every category costs GH₵ 1.00 a vote") and says the price can change per category later.
+- Organisers can set a different price on any category (O6). Rounds can set a price too, for example finals cost more than heats.
+- Which price wins: category, then round, then event default.
+- Voters always see the price where they decide and pay: category screen, vote screen ("GH₵ 2.00 a vote") and receipt.
+- A change after voting opens applies to new votes only. It needs a reason, and it is logged in Activity and the audit (see Lock).
+- Rankings count votes, never money. Reports show revenue per category.
+- Prices are stored in minor units with the event currency code. Elections have no price.
+
 ---
 
 ## 4. Voter flows (public, mobile-first, same screens in the embed)
@@ -232,7 +242,7 @@ Adaptive; designed at 1280 first, then redesigned (not shrunk) for tablet and mo
 | O3 | Create event — one step per screen: Type → Basics → Look → Rounds → Rules → Price → Review. Save a draft at any step. Review saves the event; publish unlocks once one category has a contestant | Continue / Save and add categories |
 | O4 | Event overview: votes, revenue, live leaderboard, status | Open / Pause voting |
 | O5 | Rounds / stages (window, carry-over, reset) | Add round |
-| O6 | Categories (list + per-category rule overrides) | Add category |
+| O6 | Categories (list + per-category rule and price overrides) | Add category |
 | O7 | Contestants (list, photo, code; CSV import; assign to categories) | Add contestant |
 | O8 | Nominations review (shortlist, reject, merge duplicates) | Shortlist |
 | O9 | Judges & criteria (invite judges, criteria + weights, score progress, release) | Invite judge |
