@@ -244,7 +244,7 @@ Adaptive; designed at 1280 first, then redesigned (not shrunk) for tablet and mo
 | O5 | Rounds / stages (window, carry-over, reset) | Add round |
 | O6 | Categories (list + per-category rule and price overrides) | Add category |
 | O7 | Contestants (list, photo, code; CSV import; assign to categories) | Add contestant |
-| O8 | Nominations review (shortlist, reject, merge duplicates) | Shortlist |
+| O8 | Nominations review (shortlist, reject, merge duplicates) and the nomination form builder (10 field types, live preview, who can nominate) | Shortlist / Save form |
 | O9 | Judges & criteria (invite judges, criteria + weights, score progress, release) | Invite judge |
 | O10 | Election voter register (import CSV, eligibility, turnout) | Import register |
 | O11 | Ticketing & check-in (ticket types, sales, scanner, attendees) | Add ticket type |
@@ -319,7 +319,7 @@ Each phase ends with client sign-off **in Figma**. No build work starts on any s
 | 1. Direction | 3 directions (A1 + A2 + A5) side by side → chosen: B layout + A palette; refined screens | ✅ Approved 21 Nov 2026 (A5 exits + event page added) |
 | 2. Foundations | Tokens (code + Figma variables), type, spacing, 15–20 core components (button, input, code input, quick picks + custom, contestant card, sheet, toast, table, nav…) | ✅ Approved 22 Nov 2026: vx tokens (colour light/dark, space, radius), 13 Familjen text styles, 20 components on the Figma "Components" page |
 | 3. Voter flows (B1–B8 incl. nominations, ballot, tickets ✅ approved 22 Nov 2026) | Flows A–G, all states, judge scoring, contestant portal, results page + live TV/LED screen — each at mobile 390, tablet 768/1024, desktop 1280 and embed widths; USSD tree | Approve |
-| 4. Dashboard | O1–O19 incl. rounds, nominations, judges, voter register, ticketing/check-in, offline votes; desktop 1280, tablet 1024/768 and mobile 390, each redesigned for the device | Batch 1 (O2 Events home, O4 Event overview; new Nav item, Stat tile, Tab bar) ✅ approved 22 Nov 2026. Batch 2 (O1 sign in and onboarding, O3 create an event) in review |
+| 4. Dashboard | O1–O19 incl. rounds, nominations, judges, voter register, ticketing/check-in, offline votes; desktop 1280, tablet 1024/768 and mobile 390, each redesigned for the device | Batch 1 (O2 Events home, O4 Event overview; new Nav item, Stat tile, Tab bar) ✅ approved 22 Nov 2026. Batch 2 (O1 sign in and onboarding, O3 create an event) ✅ approved 22 Nov 2026. Batch 3 (O6 categories with own price, O7 contestants and CSV import, O8 nomination review, merge and form builder) in review |
 | 5. Admin & edge cases | Platform admin, empty/error states, emails/SMS, judge app polish | Approve → build |
 | 6. Build | DB + RLS, auth, voter flows, payments (sandbox), USSD, elections, judging, ticketing, dashboard, embed + WP plugin, load test, deploy | UAT |
 
