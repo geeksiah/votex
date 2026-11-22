@@ -1,0 +1,198 @@
+/* Generated from design/tokens.json by scripts/build-tokens.mjs. Do not edit by hand. */
+:root {
+  --vx-white: #ffffff;
+  --vx-black: #000000;
+  --vx-zinc-50: #fafafa;
+  --vx-zinc-100: #f4f4f5;
+  --vx-zinc-200: #e4e4e7;
+  --vx-zinc-300: #d4d4d8;
+  --vx-zinc-400: #a1a1aa;
+  --vx-zinc-500: #71717a;
+  --vx-zinc-600: #52525b;
+  --vx-zinc-700: #3f3f46;
+  --vx-zinc-800: #27272a;
+  --vx-zinc-900: #18181b;
+  --vx-zinc-950: #09090b;
+  --vx-green-50: #f0fdf4;
+  --vx-green-100: #dcfce7;
+  --vx-green-400: #4ade80;
+  --vx-green-600: #16a34a;
+  --vx-green-700: #15803d;
+  --vx-green-950: #052e16;
+  --vx-red-50: #fef2f2;
+  --vx-red-100: #fee2e2;
+  --vx-red-400: #f87171;
+  --vx-red-600: #dc2626;
+  --vx-red-700: #b91c1c;
+  --vx-red-950: #450a0a;
+  --vx-amber-50: #fffbeb;
+  --vx-amber-100: #fef3c7;
+  --vx-amber-400: #fbbf24;
+  --vx-amber-600: #d97706;
+  --vx-amber-700: #b45309;
+  --vx-amber-950: #451a03;
+  --vx-blue-50: #eff6ff;
+  --vx-blue-100: #dbeafe;
+  --vx-blue-400: #60a5fa;
+  --vx-blue-600: #2563eb;
+  --vx-blue-700: #1d4ed8;
+  --vx-blue-950: #172554;
+  --vx-space-4: 4px;
+  --vx-space-8: 8px;
+  --vx-space-12: 12px;
+  --vx-space-16: 16px;
+  --vx-space-20: 20px;
+  --vx-space-24: 24px;
+  --vx-space-32: 32px;
+  --vx-space-40: 40px;
+  --vx-space-48: 48px;
+  --vx-space-64: 64px;
+  --vx-radius-sm: 8px;
+  --vx-radius-md: 12px;
+  --vx-radius-lg: 16px;
+  --vx-radius-full: 999px;
+  --vx-color-bg: var(--vx-white);
+  --vx-color-surface: var(--vx-white);
+  --vx-color-subtle: var(--vx-zinc-100);
+  --vx-color-fg: var(--vx-zinc-950);
+  --vx-color-muted: var(--vx-zinc-500);
+  --vx-color-faint: var(--vx-zinc-400);
+  --vx-color-border: var(--vx-zinc-200);
+  --vx-color-border-strong: var(--vx-zinc-300);
+  --vx-color-primary: var(--vx-zinc-900);
+  --vx-color-on-primary: var(--vx-white);
+  --vx-color-focus: var(--vx-zinc-950);
+  --vx-color-success-fg: var(--vx-green-700);
+  --vx-color-success-bg: var(--vx-green-100);
+  --vx-color-danger-fg: var(--vx-red-700);
+  --vx-color-danger-bg: var(--vx-red-50);
+  --vx-color-warning-fg: var(--vx-amber-700);
+  --vx-color-warning-bg: var(--vx-amber-50);
+  --vx-color-info-fg: var(--vx-blue-700);
+  --vx-color-info-bg: var(--vx-blue-50);
+  --vx-color-accent: #c2410c;
+  --vx-color-on-accent: #ffffff;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --vx-color-bg: var(--vx-zinc-950);
+  --vx-color-surface: var(--vx-zinc-900);
+  --vx-color-subtle: var(--vx-zinc-800);
+  --vx-color-fg: var(--vx-zinc-50);
+  --vx-color-muted: var(--vx-zinc-400);
+  --vx-color-faint: var(--vx-zinc-500);
+  --vx-color-border: var(--vx-zinc-800);
+  --vx-color-border-strong: var(--vx-zinc-700);
+  --vx-color-primary: var(--vx-zinc-50);
+  --vx-color-on-primary: var(--vx-zinc-950);
+  --vx-color-focus: var(--vx-zinc-50);
+  --vx-color-success-fg: var(--vx-green-400);
+  --vx-color-success-bg: var(--vx-green-950);
+  --vx-color-danger-fg: var(--vx-red-400);
+  --vx-color-danger-bg: var(--vx-red-950);
+  --vx-color-warning-fg: var(--vx-amber-400);
+  --vx-color-warning-bg: var(--vx-amber-950);
+  --vx-color-info-fg: var(--vx-blue-400);
+  --vx-color-info-bg: var(--vx-blue-950);
+  --vx-color-accent: #c2410c;
+  --vx-color-on-accent: #ffffff;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --vx-color-bg: var(--vx-zinc-950);
+    --vx-color-surface: var(--vx-zinc-900);
+    --vx-color-subtle: var(--vx-zinc-800);
+    --vx-color-fg: var(--vx-zinc-50);
+    --vx-color-muted: var(--vx-zinc-400);
+    --vx-color-faint: var(--vx-zinc-500);
+    --vx-color-border: var(--vx-zinc-800);
+    --vx-color-border-strong: var(--vx-zinc-700);
+    --vx-color-primary: var(--vx-zinc-50);
+    --vx-color-on-primary: var(--vx-zinc-950);
+    --vx-color-focus: var(--vx-zinc-50);
+    --vx-color-success-fg: var(--vx-green-400);
+    --vx-color-success-bg: var(--vx-green-950);
+    --vx-color-danger-fg: var(--vx-red-400);
+    --vx-color-danger-bg: var(--vx-red-950);
+    --vx-color-warning-fg: var(--vx-amber-400);
+    --vx-color-warning-bg: var(--vx-amber-950);
+    --vx-color-info-fg: var(--vx-blue-400);
+    --vx-color-info-bg: var(--vx-blue-950);
+    --vx-color-accent: #c2410c;
+    --vx-color-on-accent: #ffffff;
+    color-scheme: dark;
+  }
+}
+
+@utility vx-display {
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+@utility vx-heading-xl {
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+@utility vx-heading-lg {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+@utility vx-heading-md {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+@utility vx-body-lg {
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.45;
+}
+@utility vx-body-lg-medium {
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+@utility vx-body-lg-strong {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+@utility vx-body-md {
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.45;
+}
+@utility vx-body-md-medium {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+@utility vx-body-md-strong {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+@utility vx-caption {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.45;
+}
+@utility vx-caption-medium {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+@utility vx-caption-strong {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+}

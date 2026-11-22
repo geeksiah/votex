@@ -1,0 +1,66 @@
+@import "tailwindcss";
+@import "../styles/tokens.css";
+
+/* Map vx tokens into Tailwind so classes like bg-primary, text-muted, rounded-md read from --vx-* */
+@theme inline {
+  --font-sans: var(--font-familjen), ui-sans-serif, system-ui, sans-serif;
+
+  --color-bg: var(--vx-color-bg);
+  --color-surface: var(--vx-color-surface);
+  --color-subtle: var(--vx-color-subtle);
+  --color-fg: var(--vx-color-fg);
+  --color-muted: var(--vx-color-muted);
+  --color-faint: var(--vx-color-faint);
+  --color-border: var(--vx-color-border);
+  --color-border-strong: var(--vx-color-border-strong);
+  --color-primary: var(--vx-color-primary);
+  --color-on-primary: var(--vx-color-on-primary);
+  --color-focus: var(--vx-color-focus);
+  --color-success-fg: var(--vx-color-success-fg);
+  --color-success-bg: var(--vx-color-success-bg);
+  --color-danger-fg: var(--vx-color-danger-fg);
+  --color-danger-bg: var(--vx-color-danger-bg);
+  --color-warning-fg: var(--vx-color-warning-fg);
+  --color-warning-bg: var(--vx-color-warning-bg);
+  --color-info-fg: var(--vx-color-info-fg);
+  --color-info-bg: var(--vx-color-info-bg);
+  --color-accent: var(--vx-color-accent);
+  --color-on-accent: var(--vx-color-on-accent);
+
+  --radius-sm: var(--vx-radius-sm);
+  --radius-md: var(--vx-radius-md);
+  --radius-lg: var(--vx-radius-lg);
+  --radius-full: var(--vx-radius-full);
+
+  --shadow-sheet: 0 -4px 24px rgb(0 0 0 / 0.12);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--vx-color-bg);
+    color: var(--vx-color-fg);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Vote counts and money always use tabular numerals */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  :focus-visible {
+    outline: 2px solid var(--vx-color-focus);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

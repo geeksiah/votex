@@ -72,6 +72,12 @@ Event Peepo Votex: a paid voting, election, nomination, judging and ticketing pl
 - Radius: 8 (inputs, small), 12 (cards, buttons), 16 (sheets, photos). Hairline borders (1px neutral-200) instead of shadows; one soft shadow level for sheets only.
 - Photos: 4:5 portrait crop for contestants, always a real image or a monogram fallback.
 
+### Images and link previews (decided 22 Nov 2026)
+- **Organiser sign-in (O1) shows the platform, not an event.** The photo side shows Votex itself in use (for example the live results screen or the dashboard on a phone at an event), not a contestant or a single event's photo. The approved O1 frames still show a pageant photo; the new image is designed in Figma and approved before it ships. Until then the build uses a neutral placeholder slot, not the pageant photo.
+- **Sign-in pages that belong to an event use that event's cover image.** Contestant sign-in, judge sign-in, election voter check and any other event-specific sign-in show the cover the organiser set in the Look step (O3). No cover set: the event logo on its accent colour.
+- **Every event carries its own link preview.** Every public page of an event (event page, category, contestant, results, nominations, tickets, ballot) has social metadata: title, short description and the event cover image (Open Graph and X card tags), so links shared on WhatsApp, Facebook, Instagram and X show the event. No cover set: a generated card with the event logo, name and accent colour. The cover is required before an event can be published (to confirm).
+- To confirm: should a contestant's own link preview show the contestant's photo (their share card) instead of the event cover?
+
 ### Motion
 Short and functional only: 150–200ms ease-out for sheets and state changes; a single success animation on vote confirmed.
 

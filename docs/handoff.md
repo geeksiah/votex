@@ -14,7 +14,8 @@ Read this first when picking up the project in a new workspace.
   - Screens / Admin Dashboard — organiser O1–O19 (incl. O9b judge portal, O17b contestant page), Pattern · Bulk select.
   - Screens / Platform Admin — P1–P8.
   - Screens / States and Messages — edge states, emails, SMS add-on.
-- **Build: not started.** Next step is R1 step 1 (foundations) in `docs/build-plan.md`.
+- **Build: R1 step 1 (foundations) in progress.** Done: Next.js app, `vx` tokens generated from Figma (`design/tokens.json`), core components, money and contrast helpers, database schema with row-level security and data-wall tests, email-code sign-in (O1 mobile and desktop), link-preview helper, CI checks. Left for step 1: connect a real Supabase project and Vercel staging (waiting on accounts).
+- **Design follow-ups:** new platform image for O1 sign-in (decided 22 Nov 2026, see master plan §2 "Images and link previews"); tablet O1 sign-in frame; muted-on-subtle text is 4.40:1 in light mode (below AA) on the Closed badge and empty search field.
 
 ## Waiting on the client
 - Build plan approval.
