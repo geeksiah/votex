@@ -181,8 +181,13 @@ Dial the event's USSD code (built from settings, never hardcoded):
 
 **USSD votes land in the same system (decided 22 Nov 2026).** USSD is another way in, not a separate system.
 - The USSD provider sends each menu step to our server. We run the menu, check the event and contestant codes, and work out the price from the same settings as the web.
-- Payment uses Paystack's mobile money charge from our server (no web page): the voter gets the MoMo prompt on the same phone.
-- Votes are credited only after Paystack's signed webhook confirms payment — the same rule as web votes. Unpaid or timed-out sessions never count.
+- Payment goes through a payment adapter, not a fixed provider. Two options, chosen by the platform owner per country (and overridable per event):
+  - the USSD provider's own built-in payment, when it has one, or
+  - Paystack's mobile money charge from our server.
+  Either way the voter gets the MoMo prompt on the same phone.
+- Any provider we plug in must: start a charge with our reference, send a signed confirmation to our webhook, let us check a payment's status by reference, and report fees and settlement. We do not add a provider that cannot do all four.
+- Votes are credited only after a verified confirmation from that provider (signature checked, then status checked by reference) — the same rule as web votes. If a confirmation is late, we check the status ourselves. Unpaid or timed-out sessions never count. Each reference is credited once.
+- Each payment records which provider took it. Finance reconciles each provider's settlement report against our ledger daily, and the organiser's balance and fees follow that provider's actual charges.
 - Every vote is stored in one ledger with its channel (web, embed, USSD, ticket, offline). Live results, the TV screen, transactions, receipts, payouts, fraud checks and the audit report all read from that ledger.
 - Dashboards can show votes and money split by channel.
 
