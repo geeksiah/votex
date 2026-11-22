@@ -159,6 +159,8 @@ Deliverable: USSD menu tree (all screens ≤ 160 chars, every error path) + SMS 
 ### Flow E — Nominate
 Event nominations page → pick category → nominee details (name, phone/email, photo optional, reason ≤ 200 chars) → own contact (OTP if required) → pay fee (if any) → Done (reference). States: nominations closed, duplicate nominee, fee failed.
 
+**Nomination form builder (organiser).** The form is not fixed: the organiser builds it per event, and can override it per category. Field types: short text, long text, number, date, choice list, photo upload, file upload, phone, email, link. Each field has a label, optional help text, required/optional, and (for choice lists) options. Who can nominate is set too: anyone (phone or email check), a member list (ID check), or self-nomination only. Examples designed in Figma "B6b": pageant (name, region, age, photo), business awards (business, location, reason), campus awards (student, programme, social handle, student ID). The voter screen layout stays the same; only the fields change.
+
 ### Flow F — Election ballot
 Verify (member ID / phone / email + OTP against register) → ballot, one category per screen (one choice, or "skip" if allowed) → review all choices → Submit → receipt with ballot reference that **does not reveal choices**. States: not on register, already voted, election not open / closed, token expired.
 
@@ -306,7 +308,7 @@ Each phase ends with client sign-off **in Figma**. No build work starts on any s
 | 0. Setup | Repo, Figma connected, AGENTS.md (working rules) | ✅ Done |
 | 1. Direction | 3 directions (A1 + A2 + A5) side by side → chosen: B layout + A palette; refined screens | ✅ Approved 21 Nov 2026 (A5 exits + event page added) |
 | 2. Foundations | Tokens (code + Figma variables), type, spacing, 15–20 core components (button, input, code input, quick picks + custom, contestant card, sheet, toast, table, nav…) | ✅ Approved 22 Nov 2026: vx tokens (colour light/dark, space, radius), 13 Familjen text styles, 20 components on the Figma "Components" page |
-| 3. Voter flows (B1, B2, B3 pay, B4 code/links/USSD, B5 results ✅ approved 22 Nov 2026) | Flows A–G, all states, judge scoring, contestant portal, results page + live TV/LED screen — each at mobile 390, tablet 768/1024, desktop 1280 and embed widths; USSD tree | Approve |
+| 3. Voter flows (B1–B8 incl. nominations, ballot, tickets ✅ approved 22 Nov 2026) | Flows A–G, all states, judge scoring, contestant portal, results page + live TV/LED screen — each at mobile 390, tablet 768/1024, desktop 1280 and embed widths; USSD tree | Approve |
 | 4. Dashboard | O1–O19 incl. rounds, nominations, judges, voter register, ticketing/check-in, offline votes; desktop 1280, tablet 1024/768 and mobile 390, each redesigned for the device | Approve |
 | 5. Admin & edge cases | Platform admin, empty/error states, emails/SMS, judge app polish | Approve → build |
 | 6. Build | DB + RLS, auth, voter flows, payments (sandbox), USSD, elections, judging, ticketing, dashboard, embed + WP plugin, load test, deploy | UAT |
