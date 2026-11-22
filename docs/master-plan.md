@@ -304,7 +304,7 @@ Each phase ends with client sign-off **in Figma**. No build work starts on any s
 |---|---|---|
 | 0. Setup | Repo, Figma connected, AGENTS.md (working rules) | ✅ Done |
 | 1. Direction | 3 directions (A1 + A2 + A5) side by side → chosen: B layout + A palette; refined screens | ✅ Approved 21 Nov 2026 (A5 exits + event page added) |
-| 2. Foundations | Tokens (code + Figma variables), type, spacing, 15–20 core components (button, input, code input, quick picks + custom, contestant card, sheet, toast, table, nav…) | Approve |
+| 2. Foundations | Tokens (code + Figma variables), type, spacing, 15–20 core components (button, input, code input, quick picks + custom, contestant card, sheet, toast, table, nav…) | ✅ Approved 22 Nov 2026: vx tokens (colour light/dark, space, radius), 13 Familjen text styles, 20 components on the Figma "Components" page |
 | 3. Voter flows | Flows A–G, all states, judge scoring, contestant portal, results page + live TV/LED screen — each at mobile 390, tablet 768/1024, desktop 1280 and embed widths; USSD tree | Approve |
 | 4. Dashboard | O1–O19 incl. rounds, nominations, judges, voter register, ticketing/check-in, offline votes; desktop 1280, tablet 1024/768 and mobile 390, each redesigned for the device | Approve |
 | 5. Admin & edge cases | Platform admin, empty/error states, emails/SMS, judge app polish | Approve → build |
