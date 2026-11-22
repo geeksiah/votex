@@ -101,6 +101,12 @@ Tenant (organiser) ──< Event ──< Stage/Round ──< Category ──< Ca
 - **Elections:** voter register (CSV import, or eligibility by email / phone / member ID); voter verifies (OTP) → gets a single-use ballot token → ballot stored **without any link to the voter**; turnout tracked from tokens; results only after close; observer/audit export.
 - **Ticketing:** ticket types (name, price, quantity, sales window), QR ticket per purchase, check-in by scanning, optional votes bundled with a ticket.
 
+### Events without categories (decided 22 Nov 2026)
+An event does not need categories. Some events are one list (e.g. "Most Popular Student", a single pageant line-up, one poll).
+- Every event has one hidden default category. While it is the only one, voters go straight from the event page to the contestant list, and the dashboard hides the Categories screen.
+- The organiser can add categories later. Existing contestants and their votes move into the first category, unchanged.
+- Price, rules and results work the same; they use the event settings.
+
 ### Voting rules (event default, overridable per category)
 
 | Rule | Options | Applies to |
@@ -161,8 +167,17 @@ Event page (categories) → Category page (contestant grid + search by name/code
 Link or QR per contestant → starts at A2.
 
 ### Flow D — USSD (no internet)
-Dial `*XXX*EVENTCODE#` (exact shortcode from provider):
+Dial the event's USSD code (built from settings, never hardcoded):
 1. "Enter contestant code" → 2. "Vote for Ama Serwaa (AMA07)? Enter number of votes" → 3. "Total GH₵ 5.00. 1. Pay 2. Cancel" → MoMo prompt → SMS receipt.
+
+**How event USSD codes are made (decided 22 Nov 2026).**
+- The platform owner sets a base code in platform settings, e.g. `*800#`. The base can already have an extension, e.g. `*800*4#`.
+- Each event gets a number. The event code is the base without the final `#`, then `*`, the number and `#`: base `*800#` + event 4 = `*800*4#`; base `*800*4#` + event 4 = `*800*4*4#`.
+- The platform owner can give an event its own dedicated shortcode instead (e.g. a code the organiser bought). The dedicated code wins over the base code.
+- Changing the base code updates every event's code at once. The old code keeps working for a grace period with a "this code has changed" message.
+- Event numbers are unique among live events. A number is reused only 30 days after its event ends, so old posters do not reach the wrong event.
+- Shortcut: voters can add the contestant code, e.g. `*800*4*017#`, and skip step 1.
+- Shown everywhere from one source: Share & embed, posters, receipts, event page.
 
 Deliverable: USSD menu tree (all screens ≤ 160 chars, every error path) + SMS receipt copy. Menus must fit short USSD session timeouts.
 
@@ -178,7 +193,7 @@ Verify (member ID / phone / email + OTP against register) → ballot, one catego
 Event page → ticket type + quantity → pay (same MoMo/card rails) → QR ticket (screen + SMS/email link). Check-in: organiser scanner screen (camera) → valid / already used / wrong event / refunded. Bundled votes credited on purchase if configured.
 
 ### Judge scoring
-Judge signs in (email OTP) → list of entries for assigned category → per entry: photo, name, criteria sliders/number fields with weights → Save → Submit all (locks scores). Works on a tablet at the venue.
+Judges have their own portal, separate from the dashboard. Judge signs in (email OTP) → home with assigned categories and progress → contestant list with search by name or code and filters (Not scored / Scored); on tablet the list and scoring sit side by side → per entry: photo, name, criteria sliders/number fields with weights → Save → Submit all (locks scores). Works on a tablet at the venue.
 
 ### Contestant portal
 Contestant signs in (phone OTP) → personal link + QR → share cards for WhatsApp status / Instagram (auto-generated) → own vote count (only if organiser allows).
@@ -258,7 +273,15 @@ Adaptive; designed at 1280 first, then redesigned (not shrunk) for tablet and mo
 | O19 | Activity & fraud flags (audit log) | Review |
 
 ### Platform admin (Event Peepo staff)
-Tenants & verification (KYC), fee settings, disputes/refunds, payouts approval/holds, fraud review, system health, status page.
+Tenants & verification (KYC), fee settings, disputes/refunds, payouts approval/holds, fraud review, system health, status page, USSD codes (base code, event numbers, dedicated codes).
+
+**Sub-admins with tailored permissions (decided 22 Nov 2026).** The platform owner invites staff and gives each one a role. Roles are built from permissions, each set to None, View or Manage:
+organisers & verification · events · payouts · refunds & disputes · fees & pricing · fraud review · USSD & SMS · support (act as organiser, read only) · platform settings · staff & roles.
+- Ready-made roles to start from: Support, Finance, Compliance, Operations. The owner can copy and change them.
+- Optional scope: limit a sub-admin to one country or a list of organisers.
+- Sensitive actions need a second person: payouts above a set amount, fee changes, refunds above a set amount.
+- Every staff action is logged. Two-step sign-in is required for all staff.
+- Only the owner can manage owners and the staff & roles permission.
 
 ---
 
@@ -320,7 +343,7 @@ Each phase ends with client sign-off **in Figma**. No build work starts on any s
 | 2. Foundations | Tokens (code + Figma variables), type, spacing, 15–20 core components (button, input, code input, quick picks + custom, contestant card, sheet, toast, table, nav…) | ✅ Approved 22 Nov 2026: vx tokens (colour light/dark, space, radius), 13 Familjen text styles, 20 components on the Figma "Components" page |
 | 3. Voter flows (B1–B8 incl. nominations, ballot, tickets ✅ approved 22 Nov 2026) | Flows A–G, all states, judge scoring, contestant portal, results page + live TV/LED screen — each at mobile 390, tablet 768/1024, desktop 1280 and embed widths; USSD tree | Approve |
 | 4. Dashboard | O1–O19 incl. rounds, nominations, judges, voter register, ticketing/check-in, offline votes; desktop 1280, tablet 1024/768 and mobile 390, each redesigned for the device | Batch 1 (O2 Events home, O4 Event overview; new Nav item, Stat tile, Tab bar) ✅ approved 22 Nov 2026. Batch 2 (O1 sign in and onboarding, O3 create an event) ✅ approved 22 Nov 2026. Batch 3 (O6 categories with own price, O7 contestants and CSV import, O8 nomination review, merge and form builder) ✅ approved 22 Nov 2026. Batch 4 (O9 judges and scoring, O10 voter register, O11 tickets and check-in) in review |
-| 5. Admin & edge cases | Platform admin, empty/error states, emails/SMS, judge app polish | Approve → build |
+| 5. Admin & edge cases | Platform admin (incl. staff roles and permissions, USSD code settings), empty/error states, emails/SMS, judge portal (sign in, home, search list, submit) | Approve → build |
 | 6. Build | DB + RLS, auth, voter flows, payments (sandbox), USSD, elections, judging, ticketing, dashboard, embed + WP plugin, load test, deploy | UAT |
 
 ---
