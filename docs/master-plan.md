@@ -292,7 +292,7 @@ Each phase ends with client sign-off **in Figma**. No build work starts on any s
 
 | Phase | Output | Gate |
 |---|---|---|
-| 0. Setup | Repo, Claude Code + Figma MCP connected, CLAUDE.md | — |
+| 0. Setup | Repo, Figma connected, AGENTS.md (working rules) | ✅ Done |
 | 1. Direction | 3 directions (A1 + A2 + A5) side by side → chosen: B layout + A palette; refined screens | ✅ Approved 21 Nov 2026 (A5 exits + event page added) |
 | 2. Foundations | Tokens (code + Figma variables), type, spacing, 15–20 core components (button, input, code input, quick picks + custom, contestant card, sheet, toast, table, nav…) | Approve |
 | 3. Voter flows | Flows A–G, all states, judge scoring, contestant portal, results page + live TV/LED screen — each at mobile 390, tablet 768/1024, desktop 1280 and embed widths; USSD tree | Approve |
