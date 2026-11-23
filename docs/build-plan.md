@@ -17,7 +17,7 @@ Three releases. Each one is usable on its own, and each ends with a pilot on a r
 
 Each step ends with a working demo on a private staging link for your approval before the next step.
 
-1. **Foundations** (in progress 22 Nov 2026; staging waits on Supabase and Vercel accounts) — project setup, design tokens and components in code matching Figma, database with per-client data walls (row-level security), sign-in by email code, staging deploy, automatic checks on every change.
+1. **Foundations** (done 23 Nov 2026: staging at https://votex-pearl.vercel.app, sign-in by email code tested end to end) — project setup, design tokens and components in code matching Figma, database with per-client data walls (row-level security), sign-in by email code, staging deploy, automatic checks on every change.
 2. **Organiser setup** — onboarding, verification upload, Paystack subaccount creation, create-event wizard, categories, contestants, CSV import, voting rules.
 3. **Voting and payment** — public event pages, vote by code, browse, MoMo and card through Paystack, webhook checks, the vote ledger (votes counted only after verified payment, each payment counted once), receipts.
 4. **Results and live screen** — live counts, results page, TV/LED screen (light and dark, pages, timing) controlled from the dashboard.
