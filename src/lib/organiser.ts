@@ -20,9 +20,12 @@ export type Organiser = {
 export async function requireUser(next: string) {
   const supabase = await createClient();
   if (!supabase) redirect("/sign-in");
-  const { data } = await supabase.auth.getUser();
-  if (!data.user) redirect(`/sign-in?next=${encodeURIComponent(next)}`);
-  return { supabase, user: data.user };
+  // getClaims checks the signed token locally (no trip to the auth server); the middleware has already
+  // refreshed it. Database rules still check every query on the server.
+  const { data } = await supabase.auth.getClaims();
+  const claims = data?.claims;
+  if (!claims?.sub) redirect(`/sign-in?next=${encodeURIComponent(next)}`);
+  return { supabase, user: { id: claims.sub, email: typeof claims.email === "string" ? claims.email : "" } };
 }
 
 /**

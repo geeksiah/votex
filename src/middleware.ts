@@ -18,8 +18,8 @@ export async function middleware(request: NextRequest) {
       },
     },
   });
-  // Validates the token with Supabase Auth; do not replace with getSession().
-  await supabase.auth.getUser();
+  // Refreshes an expiring session and verifies the token's signature; do not replace with getSession().
+  await supabase.auth.getClaims();
   return response;
 }
 

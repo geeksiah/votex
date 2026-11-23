@@ -40,7 +40,7 @@ export function WizardFrame(p: WizardFrameProps) {
       disabled={p.savingDraft}
       className="vx-body-md-medium text-fg underline-offset-4 hover:underline disabled:opacity-40"
     >
-      Save draft
+      {p.savingDraft ? "Saving…" : "Save draft"}
     </button>
   );
   const backOrClose = first ? (

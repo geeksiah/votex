@@ -27,13 +27,29 @@ export function Button({ variant, size, block, busy, className, disabled, type =
   return (
     <button
       type={type}
-      className={cx(buttonClass({ variant, size, block }), className)}
+      className={cx(buttonClass({ variant, size, block }), "relative", busy && "disabled:cursor-wait disabled:opacity-100", className)}
       disabled={disabled || busy}
       aria-busy={busy || undefined}
       {...rest}
     >
-      {children}
+      {/* While busy the label stays in place (so the width does not jump) and a spinner shows over it. */}
+      <span className={cx("inline-flex items-center gap-2", busy && "invisible")}>{children}</span>
+      {busy ? (
+        <span className="absolute inset-0 grid place-items-center" role="status">
+          <Spinner />
+          <span className="sr-only">Working</span>
+        </span>
+      ) : null}
     </button>
+  );
+}
+
+export function Spinner({ size = 20 }: { size?: number }) {
+  return (
+    <svg aria-hidden width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-spin motion-reduce:animate-none">
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.25" strokeWidth="3" />
+      <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+    </svg>
   );
 }
 

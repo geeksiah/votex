@@ -35,6 +35,15 @@
   --shadow-sheet: 0 -4px 24px rgb(0 0 0 / 0.12);
 }
 
+@keyframes vx-loading {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(300%);
+  }
+}
+
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
