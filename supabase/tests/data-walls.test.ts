@@ -175,3 +175,52 @@ describe("logo storage", () => {
     expect(removed).toEqual([]);
   });
 });
+
+describe("event wizard", () => {
+  const eventId = async (slug: string) =>
+    (await as(db, KOFI, () => one<{ id: string }>(`select id from public.events where slug = $1`, [slug])))[0]!.id;
+
+  it("owners add rounds to their own events; others cannot", async () => {
+    const id = await eventId("ghana-gospel-awards");
+    await as(db, KOFI, () => one(`insert into public.rounds (event_id, tenant_id, position, name) values ($1, $2, 1, 'Public vote')`, [id, akoma]));
+    await expect(
+      as(db, ESI, () => one(`insert into public.rounds (event_id, tenant_id, position, name) values ($1, $2, 2, 'Judges')`, [id, akoma])),
+    ).rejects.toThrow();
+    await expect(
+      as(db, YAW, () => one(`insert into public.rounds (event_id, tenant_id, position, name) values ($1, $2, 2, 'Judges')`, [id, akoma])),
+    ).rejects.toThrow();
+  });
+
+  it("a round cannot point at another organiser's event", async () => {
+    const id = await eventId("ghana-gospel-awards");
+    await expect(
+      as(db, ESI, () => one(`insert into public.rounds (event_id, tenant_id, position, name) values ($1, $2, 3, 'Sneaky')`, [id, campus])),
+    ).rejects.toThrow();
+  });
+
+  it("draft rounds stay private; published ones are public", async () => {
+    const live = await eventId("miss-ashanti-2026");
+    await as(db, KOFI, () => one(`insert into public.rounds (event_id, tenant_id, position, name) values ($1, $2, 1, 'Public vote')`, [live, akoma]));
+    const seen = await as(db, null, () => one<{ name: string }>(`select r.name from public.rounds r join public.events e on e.id = r.event_id where e.tenant_id = $1`, [akoma]));
+    expect(seen).toEqual([{ name: "Public vote" }]);
+  });
+
+  it("checks event links across all organisers, drafts included", async () => {
+    const free = (slug: string) => as(db, ESI, async () => (await one<{ ok: boolean }>(`select public.event_slug_available($1) as ok`, [slug]))[0]!.ok);
+    expect(await free("ghana-gospel-awards")).toBe(false);
+    expect(await free("akoma26")).toBe(true);
+    expect(await free("sign-in")).toBe(false);
+    expect(await free("Bad Link")).toBe(false);
+    expect(await free("ab")).toBe(false);
+  });
+
+  it("an event keeps its own link when checked against itself", async () => {
+    const id = await eventId("ghana-gospel-awards");
+    const ok = await as(db, KOFI, async () => (await one<{ ok: boolean }>(`select public.event_slug_available('ghana-gospel-awards', $1) as ok`, [id]))[0]!.ok);
+    expect(ok).toBe(true);
+  });
+
+  it("anon cannot probe event links", async () => {
+    await expect(as(db, null, () => one(`select public.event_slug_available('akoma26')`))).rejects.toThrow();
+  });
+});

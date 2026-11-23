@@ -10,7 +10,7 @@ import { onAccent } from "@/lib/contrast";
 import { cx } from "@/lib/cx";
 import type { Organiser } from "@/lib/organiser";
 import { createClient } from "@/lib/supabase/client";
-import { SetupShell } from "../setup-shell";
+import { BackButton, SetupShell } from "../setup-shell";
 
 // O1 onboarding 2 · "Add your logo and colour" (approved 22 Nov 2026).
 const SWATCHES = ["#C2410C", "#0E7C66", "#1D4ED8", "#B4232A", "#7C5A10", "#18181B"];
@@ -99,8 +99,12 @@ export function BrandForm({ organiser }: { organiser: Organiser }) {
         step={2}
         title="Add your logo and colour"
         subtitle="You can use different ones for each event."
-        back={null}
-        headerAction={<span className="md:hidden">{skip}</span>}
+        back={<BackButton label="Back" onClick={() => router.back()} />}
+        headerAction={
+          <Link href="/events" className="vx-body-md-medium text-fg underline-offset-4 hover:underline md:hidden">
+            Skip
+          </Link>
+        }
         actions={
           <>
             <Button type="submit" busy={busy} block className="lg:w-auto">

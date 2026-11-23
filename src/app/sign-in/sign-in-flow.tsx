@@ -107,7 +107,7 @@ export function SignInFlow({ next, linkFailed }: { next?: string; linkFailed?: b
             >
               <Icon name="chevron-left" />
             </button>
-            <Wordmark className="hidden lg:inline-flex" />
+            <Wordmark className="max-lg:hidden" />
           </header>
         )}
 

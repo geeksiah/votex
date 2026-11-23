@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local design-check samples (downloaded from Figma, not shipped)
+public/dev-samples/

@@ -1,5 +1,22 @@
 import { describe, expect, it } from "vitest";
-import { formatMoney, minorDigits, multiply, percentOf } from "./money";
+import { formatMoney, minorDigits, multiply, parseMoney, percentOf } from "./money";
+
+describe("design format and typed amounts", () => {
+  it("writes a space after a leading symbol, like the designs", () => {
+    expect(formatMoney({ minor: 100, currency: "GHS" }, "en-GH")).toBe("GH₵ 1.00");
+    expect(formatMoney({ minor: 4821000, currency: "GHS" }, "en-GH")).toBe("GH₵ 48,210.00");
+  });
+
+  it("reads what organisers type", () => {
+    expect(parseMoney("1", "GHS")).toBe(100);
+    expect(parseMoney("1.5", "GHS")).toBe(150);
+    expect(parseMoney("GH₵ 1.00", "GHS")).toBe(100);
+    expect(parseMoney("1,000", "GHS")).toBe(100000);
+    expect(parseMoney("1.005", "GHS")).toBeNull();
+    expect(parseMoney("", "GHS")).toBeNull();
+    expect(parseMoney("500", "XOF")).toBe(500);
+  });
+});
 
 describe("money", () => {
   it("formats cedis from pesewas", () => {
