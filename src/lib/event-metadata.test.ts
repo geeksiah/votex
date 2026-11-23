@@ -8,12 +8,12 @@ const event: EventPreview = {
   coverPath: "akoma/miss-ashanti 2026.jpg",
   tenantName: "Akoma Events",
 };
-const opts = { siteUrl: "https://vote.eventpeepo.com/", supabaseUrl: "https://abc.supabase.co" };
+const opts = { siteUrl: "https://votex.eventpeepo.com/", supabaseUrl: "https://abc.supabase.co" };
 
 describe("event link previews", () => {
   it("uses the event cover and description", () => {
     const m = eventMetadata(event, opts);
-    expect(m.openGraph?.url).toBe("https://vote.eventpeepo.com/miss-ashanti-2026");
+    expect(m.openGraph?.url).toBe("https://votex.eventpeepo.com/miss-ashanti-2026");
     expect(m.description).toBe(event.description);
     const images = m.openGraph?.images as Array<{ url: string }>;
     expect(images[0]!.url).toBe("https://abc.supabase.co/storage/v1/object/public/event-covers/akoma/miss-ashanti%202026.jpg");
@@ -23,10 +23,10 @@ describe("event link previews", () => {
   it("falls back to a generated card and a plain description", () => {
     const m = eventMetadata({ ...event, coverPath: null, description: null }, { ...opts, path: "/results", pageTitle: "Results" });
     const images = m.openGraph?.images as Array<{ url: string }>;
-    expect(images[0]!.url).toBe("https://vote.eventpeepo.com/og/event/miss-ashanti-2026");
+    expect(images[0]!.url).toBe("https://votex.eventpeepo.com/og/event/miss-ashanti-2026");
     expect(m.description).toBe("Vote in Miss Ashanti 2026, by Akoma Events.");
     expect(m.title).toEqual({ absolute: "Results · Miss Ashanti 2026" });
-    expect(m.openGraph?.url).toBe("https://vote.eventpeepo.com/miss-ashanti-2026/results");
+    expect(m.openGraph?.url).toBe("https://votex.eventpeepo.com/miss-ashanti-2026/results");
   });
 
   it("shows the contestant on their own link", () => {

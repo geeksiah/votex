@@ -1,6 +1,6 @@
 # Votex — Master Plan (v2.1)
 
-Event Peepo Votex: a paid voting, election, nomination, judging and ticketing platform for pageants, awards, elections and similar programs. Multi-tenant web app at **vote.eventpeepo.com**, plus an embeddable widget and a WordPress plugin.
+Event Peepo Votex: a paid voting, election, nomination, judging and ticketing platform for pageants, awards, elections and similar programs. Multi-tenant web app at **votex.eventpeepo.com**, plus an embeddable widget and a WordPress plugin.
 
 **Status:** Phase 1 direction chosen (see §2). Next: refined direction screens → client confirms → Phase 2 Foundations.
 **Order (hard rule):** design in code/Figma → **client confirms the Figma screens** → build. Nothing is built from screens the client has not confirmed in Figma.
@@ -216,7 +216,7 @@ Event page → ticket type + quantity → pay (same MoMo/card rails) → QR tick
 Judges have their own portal, separate from the dashboard. Judge signs in (email OTP) → home with assigned categories and progress → contestant list with search by name or code and filters (Not scored / Scored); on tablet the list and scoring sit side by side → per entry: photo, name, criteria sliders/number fields with weights → Save → Submit all (locks scores). Works on a tablet at the venue.
 
 ### Contestant portal
-**Access (decided 22 Nov 2026).** The organiser adds each contestant's email when adding them (O7). We email an invite with a one-tap sign-in button (valid 24 hours). After that, contestants sign in at `vote.eventpeepo.com/me` with an email code, no password. If a contestant is in several categories or events, they pick which page to open. Their page is a full page, not a card: big photo, name, category and code, votes (if allowed), share buttons, link, USSD shortcut, and 9:16 share cards. Designed in Figma "O17b".
+**Access (decided 22 Nov 2026).** The organiser adds each contestant's email when adding them (O7). We email an invite with a one-tap sign-in button (valid 24 hours). After that, contestants sign in at `votex.eventpeepo.com/me` with an email code, no password. If a contestant is in several categories or events, they pick which page to open. Their page is a full page, not a card: big photo, name, category and code, votes (if allowed), share buttons, link, USSD shortcut, and 9:16 share cards. Designed in Figma "O17b".
 
 Contestant signs in (phone OTP) → personal link + QR → share cards for WhatsApp status / Instagram (auto-generated) → own vote count (only if organiser allows).
 
@@ -342,7 +342,7 @@ Contestants campaigning on WhatsApp/Instagram drive vote volume:
 
 ## 10. Embed & WordPress plugin
 
-- **Embed:** iframe served from `vote.eventpeepo.com/embed/{event}/{category}` + a tiny loader script (`votex.js`) that auto-resizes it via postMessage. Iframe keeps payments isolated from the host page.
+- **Embed:** iframe served from `votex.eventpeepo.com/embed/{event}/{category}` + a tiny loader script (`votex.js`) that auto-resizes it via postMessage. Iframe keeps payments isolated from the host page.
 - **Theming:** event accent, light/dark/auto, radius (sharp/soft), optional font inherit (family name passed via the loader). Neutral defaults so it looks native on most sites.
 - **WordPress:** plugin with shortcode `[votex event="…" category="…"]` and a Gutenberg block wrapping the same embed. Other stacks use the script snippet.
 - **Design deliverables:** embed at 320 / 480 / 720 widths on a light and a dark host page; dashboard "Share & embed" screen.
@@ -351,7 +351,7 @@ Contestants campaigning on WhatsApp/Instagram drive vote volume:
 
 ## 11. Multi-tenancy, legal & operations
 
-- Row-level isolation by `tenant_id`; tenant subdomain (`{tenant}.vote.eventpeepo.com`) and optional custom domain; per-tenant branding, payment config, rate limits; data export and retention policy after events.
+- Row-level isolation by `tenant_id`; tenant subdomain (`{tenant}.votex.eventpeepo.com`) and optional custom domain; per-tenant branding, payment config, rate limits; data export and retention policy after events.
 - **Legal:** register with the Data Protection Commission (Data Protection Act, 2012, Act 843); voter and organiser terms; privacy notice; contestant photo consent; **guardian consent for under-18 contestants**; legal check that paid voting (no prize to the voter) is not treated as gaming.
 - **Support:** WhatsApp support during live events; self-serve receipt lookup; SMS receipts.
 
@@ -371,7 +371,7 @@ Contestants campaigning on WhatsApp/Instagram drive vote volume:
 - Supabase: Postgres with row-level security by `tenant_id`, Auth (email/phone OTP), Realtime for live counts, Storage for photos.
 - Payments: Paystack (MoMo + card, split payments/subaccounts), Hubtel (USSD).
 - Queue for webhooks/crediting (Supabase queues / pgmq or equivalent).
-- Hosting: Vercel (or similar) on vote.eventpeepo.com; webhooks and USSD callbacks as server routes / edge functions.
+- Hosting: Vercel on votex.eventpeepo.com (decided 23 Nov 2026, replacing vote.eventpeepo.com; sign-in emails come from no-reply@votex.eventpeepo.com via Resend); webhooks and USSD callbacks as server routes / edge functions.
 - Tests: Playwright for voter flows (mobile viewport), unit tests for rule engine, payment crediting and ballot anonymity; load test before first live event.
 
 **Core tables:** tenants, tenant_members, events, stages, categories, contestants, category_entries, voting_rules, voters, vote_orders, payments, votes (append-only ledger), offline_vote_entries, nominations, judges, judging_criteria, scores, voter_register, ballot_tokens, ballots (no voter link), ticket_types, tickets, checkins, ussd_sessions, payouts, audit_log.

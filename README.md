@@ -1,6 +1,6 @@
 # Votex
 
-Event Peepo Votex: paid voting, elections, nominations, judging and ticketing for pageants, awards and similar programmes. Multi-tenant web app at vote.eventpeepo.com, plus an embeddable widget and a WordPress plugin.
+Event Peepo Votex: paid voting, elections, nominations, judging and ticketing for pageants, awards and similar programmes. Multi-tenant web app at votex.eventpeepo.com, plus an embeddable widget and a WordPress plugin.
 
 - Plan and scope: [docs/master-plan.md](docs/master-plan.md)
 - Build order: [docs/build-plan.md](docs/build-plan.md)

@@ -1,6 +1,6 @@
 # Votex — working rules
 
-Applies to anyone working on Votex (Event Peepo voting platform, hosted at vote.eventpeepo.com), human or AI agent.
+Applies to anyone working on Votex (Event Peepo voting platform, hosted at votex.eventpeepo.com), human or AI agent.
 
 ## Source of truth
 - `docs/master-plan.md` is the source of truth for scope, flows, data model and phases. Read it before any task. If something conflicts with it, ask; don't guess.
