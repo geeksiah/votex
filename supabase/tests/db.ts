@@ -17,6 +17,20 @@ const SUPABASE_STANDIN = `
   -- The Votex project has "grant API access to new tables automatically" switched off, so tables start
   -- with no grants and the migration must grant what it needs. Functions keep Postgres' default
   -- (execute for PUBLIC), which is why the migration revokes it where needed.
+  -- Storage: just the parts the migrations touch (buckets and objects with row-level security).
+  create schema storage;
+  create table storage.buckets (
+    id text primary key, name text not null, public boolean default false,
+    file_size_limit bigint, allowed_mime_types text[]
+  );
+  create table storage.objects (
+    id uuid primary key default gen_random_uuid(), bucket_id text references storage.buckets (id),
+    name text not null, owner uuid default auth.uid(), created_at timestamptz default now()
+  );
+  alter table storage.objects enable row level security;
+  grant usage on schema storage to anon, authenticated;
+  grant select, insert, update, delete on storage.objects to authenticated;
+  grant select on storage.objects, storage.buckets to anon, authenticated;
   grant all on all tables in schema public to service_role;
   alter default privileges in schema public grant all on tables to service_role;
 `;

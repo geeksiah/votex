@@ -130,3 +130,48 @@ describe("activity log", () => {
     expect(esiSees.every((r) => r.tenant_id === campus)).toBe(true);
   });
 });
+
+describe("onboarding", () => {
+  it("creates the organiser with its country and main currency", async () => {
+    const NANA = "55555555-5555-4555-8555-555555555555";
+    await addUser(db, NANA, "nana@lagosawards.ng");
+    const id = await as(db, NANA, async () => (await one<{ id: string }>(`select public.create_tenant('Lagos Campus Awards', 'ng', 'ngn') as id`))[0]!.id);
+    const rows = await as(db, NANA, () => one<{ country: string; default_currency: string }>(`select country, default_currency from public.tenants where id = $1`, [id]));
+    expect(rows).toEqual([{ country: "NG", default_currency: "NGN" }]);
+  });
+
+  it("defaults to Ghana and cedis", async () => {
+    const rows = await as(db, KOFI, () => one<{ country: string; default_currency: string }>(`select country, default_currency from public.tenants where id = $1`, [akoma]));
+    expect(rows).toEqual([{ country: "GH", default_currency: "GHS" }]);
+  });
+
+  it("anon cannot create an organiser", async () => {
+    await expect(as(db, null, () => one(`select public.create_tenant('Fake Org')`))).rejects.toThrow();
+  });
+});
+
+describe("logo storage", () => {
+  const put = (user: string | null, path: string) =>
+    as(db, user, () => one(`insert into storage.objects (bucket_id, name) values ('tenant-logos', $1)`, [path]));
+
+  it("owners and admins upload into their own organiser's folder", async () => {
+    await put(KOFI, `${akoma}/logo-1.png`);
+    await put(ABENA, `${akoma}/logo-2.png`);
+  });
+
+  it("viewers, other organisers and anon cannot upload", async () => {
+    await expect(put(YAW, `${akoma}/logo-3.png`)).rejects.toThrow();
+    await expect(put(ESI, `${akoma}/logo-4.png`)).rejects.toThrow();
+    await expect(put(null, `${akoma}/logo-5.png`)).rejects.toThrow();
+  });
+
+  it("paths outside an organiser folder are refused", async () => {
+    await expect(put(KOFI, `logo.png`)).rejects.toThrow();
+    await expect(put(KOFI, `not-an-id/logo.png`)).rejects.toThrow();
+  });
+
+  it("other organisers cannot remove a logo", async () => {
+    const removed = await as(db, ESI, () => one(`delete from storage.objects where name = $1 returning id`, [`${akoma}/logo-1.png`]));
+    expect(removed).toEqual([]);
+  });
+});

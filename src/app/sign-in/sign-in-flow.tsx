@@ -55,8 +55,8 @@ export function SignInFlow({ next, linkFailed }: { next?: string; linkFailed?: b
     return true;
   }
 
-  async function verify() {
-    if (code.length !== 6) {
+  async function verify(token = code) {
+    if (token.length !== 6) {
       setError("Enter the 6-digit code");
       return;
     }
@@ -64,7 +64,7 @@ export function SignInFlow({ next, linkFailed }: { next?: string; linkFailed?: b
     if (!supabase) return;
     setBusy(true);
     setError(undefined);
-    const { error: e } = await supabase.auth.verifyOtp({ email, token: code, type: "email" });
+    const { error: e } = await supabase.auth.verifyOtp({ email, token, type: "email" });
     if (e) {
       setBusy(false);
       setError(authErrorMessage(e));
@@ -142,7 +142,17 @@ export function SignInFlow({ next, linkFailed }: { next?: string; linkFailed?: b
                 error={error}
               />
             ) : (
-              <OtpField label="6-digit code" value={code} onChange={setCode} error={error} autoFocus />
+              <OtpField
+                label="6-digit code"
+                value={code}
+                onChange={(next) => {
+                  setCode(next);
+                  // Check the code as soon as the sixth digit is typed or pasted; the button stays as a fallback.
+                  if (next.length === 6 && next !== code && !busy) void verify(next);
+                }}
+                error={error}
+                autoFocus
+              />
             )}
 
             {notice ? (
