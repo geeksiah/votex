@@ -6,6 +6,17 @@ import { OrganisationForm } from "@/app/setup/organisation/organisation-form";
 import { CategoriesView, type CategoryItem } from "@/app/events/[id]/categories/categories-view";
 import { EventShell } from "@/components/dashboard/event-shell";
 import { ContestantsView, type ContestantItem } from "@/app/events/[id]/contestants/contestants-view";
+import { ImportFlow } from "@/app/events/[id]/contestants/import/import-flow";
+
+// Figma sample file: 49 rows, rows 12, 30 and 41 name a category that does not exist, 41 with a photo link.
+const sampleRows = (): string[][] => [
+  ["full_name", "category", "photo_url", "phone", "stage_name"],
+  ...Array.from({ length: 49 }, (_, i) => {
+    const line = i + 2;
+    const cat = [12, 30, 41].includes(line) ? "Best Rap Song" : CATS[i % 8]![0];
+    return [i === 0 ? "Kwame Owusu" : `Nominee ${line}`, cat, i < 41 ? "drive.google.com/file/d/abc/view" : "", "0201184420", i === 0 ? "K.O." : ""];
+  }),
+];
 
 const PEOPLE: [string, string, string[], number, string | null, boolean][] = [
   ["Kobby Asiedu", "AMA-001", ["c3", "c0"], 5120, "/dev-samples/cover-1.png", true],
@@ -145,6 +156,23 @@ export default async function DevScreen({ params }: { params: Promise<{ screen: 
           categories={categories.map((c) => ({ id: c.id, name: c.name }))}
           initialCategory={screen === "contestants-cat" ? "c3" : "all"}
           canEdit
+        />
+      </EventShell>
+    );
+  const im = /^import-([123])$/.exec(screen);
+  if (im)
+    return (
+      <EventShell
+        organisation={organiser.name}
+        person={person}
+        event={{ id: "e1", name: "Akoma Music Awards 2026", status: "live", accent: "#c2410c", logoUrl: null }}
+        active="contestants"
+        bare="touch"
+      >
+        <ImportFlow
+          event={{ id: "e1", tenantId: organiser.id }}
+          categories={categories.map((c) => ({ id: c.id, name: c.name }))}
+          sample={im[1] === "1" ? undefined : { step: Number(im[1]), file: "akoma-nominees.csv", rows: sampleRows() }}
         />
       </EventShell>
     );

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { SearchField } from "@/components/ui/search-field";
 import { cx } from "@/lib/cx";
@@ -50,12 +50,15 @@ export function ContestantsView({
   categories,
   initialCategory,
   canEdit,
+  added,
 }: {
   event: { id: string; tenantId: string; name: string };
   contestants: ContestantItem[];
   categories: Cat[];
   initialCategory: string;
   canEdit: boolean;
+  /** Set after a CSV import: shows "46 contestants added". */
+  added?: number;
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -64,7 +67,9 @@ export function ContestantsView({
   const [selectMode, setSelectMode] = useState(false);
   const [editing, setEditing] = useState<ContestantItem | "new" | null>(null);
   const [confirm, setConfirm] = useState(false);
-  const [toast, setToast] = useState<{ text: string; undo?: () => void } | null>(null);
+  const [toast, setToast] = useState<{ text: string; undo?: () => void } | null>(() =>
+    added ? { text: `${added} ${added === 1 ? "contestant" : "contestants"} added` } : null,
+  );
   const press = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const catName = new Map(categories.map((c) => [c.id, c.name]));
@@ -184,6 +189,9 @@ export function ContestantsView({
             <Button size="md" variant="secondary" onClick={() => setSelectMode(true)} className="lg:hidden">
               Select
             </Button>
+            <ButtonLink href={`/events/${event.id}/contestants/import`} size="md" variant="secondary" className="max-lg:hidden">
+              Import CSV
+            </ButtonLink>
             <Button size="md" onClick={() => setEditing("new")}>
               Add contestant
             </Button>

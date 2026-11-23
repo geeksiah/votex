@@ -8,9 +8,9 @@ import { ContestantsView, type ContestantItem } from "./contestants-view";
 export const metadata: Metadata = { title: "Contestants" };
 export const dynamic = "force-dynamic";
 
-export default async function ContestantsPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ category?: string }> }) {
+export default async function ContestantsPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ category?: string; added?: string }> }) {
   const { id } = await params;
-  const { category } = await searchParams;
+  const { category, added } = await searchParams;
   const { supabase, user, role, organiser, event } = await requireEvent(id, `/events/${id}/contestants`);
   const canEdit = role === "owner" || role === "admin";
   const [{ data: people }, { data: cats }, { data: contacts }] = await Promise.all([
@@ -47,6 +47,7 @@ export default async function ContestantsPage({ params, searchParams }: { params
         categories={categories}
         initialCategory={categories.some((c) => c.id === category) ? category! : "all"}
         canEdit={canEdit}
+        added={added && /^\d+$/.test(added) ? Number(added) : undefined}
       />
     </EventShell>
   );

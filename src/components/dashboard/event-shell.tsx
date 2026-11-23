@@ -20,8 +20,11 @@ type Props = {
   event: { id: string; name: string; status: string; accent: string | null; logoUrl: string | null };
   active: EventSection;
   children: ReactNode;
-  /** Phone: the page draws its own top bar and has no tab bar (e.g. contestants of one category). */
-  bare?: boolean;
+  /**
+   * The page draws its own top bar: true on phones (e.g. contestants of one category), "touch" on phones
+   * and tablets (e.g. the CSV import, a full-screen flow).
+   */
+  bare?: boolean | "touch";
 };
 
 const badge = (s: string) => s as EventStatus;
@@ -101,7 +104,7 @@ export function EventShell({ organisation, person, event, active, children, bare
       </aside>
 
       {/* Tablet top bar and tabs */}
-      <div className="sticky top-0 z-20 hidden flex-col bg-bg md:flex lg:hidden">
+      <div className={cx("sticky top-0 z-20 hidden flex-col bg-bg md:flex lg:hidden", bare === "touch" && "md:hidden")}>
         <header className="flex h-16 items-center gap-3 px-6">
           <Link href="/events" aria-label="All events" className="-ml-2 grid size-10 place-items-center rounded-sm text-fg hover:bg-subtle">
             <Icon name="chevron-left" size={22} />
