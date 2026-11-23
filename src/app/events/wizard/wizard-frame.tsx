@@ -2,17 +2,19 @@
 
 import type { ReactNode } from "react";
 import { Wordmark } from "@/components/ui/badges";
-import { Button } from "@/components/ui/button";
+import { Button, Spinner } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { cx } from "@/lib/cx";
 
 // O3 frame (Figma "O3 · Mobile · 1–7", "Tablet 768 · 2 Basics", "Desktop 1280 · 1 Type / 6 Price / 7 Review").
-// Phone: header (close or back, Save draft), 7-part progress, action area pinned to the bottom.
+// Phone: header (close or back, Save draft), one progress part per step, action area pinned to the bottom.
 // Tablet 768: same order, 560 wide column, full-width button in the footer.
 // Desktop ≥1024: step rail on the left, "Step n of 7" top bar, Back and primary in the footer.
-export const STEP_NAMES = ["Type", "Basics", "Look", "Rounds", "Rules", "Price", "Review"] as const;
+export type DraftState = "idle" | "saving" | "saved" | "failed";
 
 type WizardFrameProps = {
+  /** Step names for the chosen event type, e.g. Type, Basics, Look, Review for tickets. */
+  steps: string[];
   step: number;
   /** Steps the organiser has finished (shown with a tick in the desktop rail). */
   done: (step: number) => boolean;
@@ -26,21 +28,31 @@ type WizardFrameProps = {
   aside?: ReactNode;
   primary: string;
   busy: boolean;
-  savingDraft: boolean;
+  draft: DraftState;
   below?: ReactNode;
 };
 
 export function WizardFrame(p: WizardFrameProps) {
-  const total = STEP_NAMES.length;
+  const total = p.steps.length;
   const first = p.step === 1;
+  // Figma "Save draft": Default · Saving… · Draft saved (3 s) · Not saved. Try again (tap to retry).
   const saveDraft = (
     <button
       type="button"
       onClick={p.onSaveDraft}
-      disabled={p.savingDraft}
-      className="vx-body-md-medium text-fg underline-offset-4 hover:underline disabled:opacity-40"
+      disabled={p.draft === "saving"}
+      aria-live="polite"
+      className={cx(
+        "flex h-11 items-center gap-1.5 vx-body-md-medium underline-offset-4",
+        p.draft === "idle" && "text-fg hover:underline",
+        (p.draft === "saving" || p.draft === "saved") && "text-muted",
+        p.draft === "failed" && "text-danger-fg hover:underline",
+      )}
     >
-      {p.savingDraft ? "Saving…" : "Save draft"}
+      {p.draft === "saving" ? <Spinner size={16} /> : null}
+      {p.draft === "saved" ? <Icon name="check" size={16} /> : null}
+      {p.draft === "failed" ? <Icon name="alert" size={16} /> : null}
+      {p.draft === "saving" ? "Saving…" : p.draft === "saved" ? "Draft saved" : p.draft === "failed" ? "Not saved. Try again" : "Save draft"}
     </button>
   );
   const backOrClose = first ? (
@@ -59,7 +71,7 @@ export function WizardFrame(p: WizardFrameProps) {
       <aside className="sticky top-0 hidden h-dvh w-[272px] shrink-0 flex-col gap-1 bg-subtle pt-8 pr-6 pl-8 lg:flex">
         <Wordmark />
         <p className="mt-11 mb-3 vx-caption-medium text-muted">New event</p>
-        {STEP_NAMES.map((name, i) => {
+        {p.steps.map((name, i) => {
           const n = i + 1;
           const current = n === p.step;
           const isDone = !current && p.done(n);
@@ -73,7 +85,7 @@ export function WizardFrame(p: WizardFrameProps) {
               aria-current={current ? "step" : undefined}
               className={cx(
                 "flex h-11 items-center gap-3 rounded-[10px] pl-2.5 text-left",
-                current ? "bg-bg vx-body-md-strong text-fg" : "vx-body-md text-fg",
+                current ? "bg-bg vx-body-md-strong text-fg" : reachable ? "vx-body-md text-fg" : "vx-body-md text-muted",
                 reachable && !current && "hover:bg-bg/60",
               )}
             >
@@ -81,7 +93,7 @@ export function WizardFrame(p: WizardFrameProps) {
                 aria-hidden
                 className={cx(
                   "grid size-6 shrink-0 place-items-center rounded-full vx-caption-strong",
-                  isDone ? "bg-primary text-on-primary" : current ? "border-[1.5px] border-fg text-fg" : "border-[1.5px] border-border-strong text-fg",
+                  isDone ? "bg-primary text-on-primary" : current ? "border-[1.5px] border-fg text-fg" : "border-[1.5px] border-border-strong text-muted",
                 )}
               >
                 {isDone ? <Icon name="check" size={14} /> : n}
@@ -125,7 +137,7 @@ export function WizardFrame(p: WizardFrameProps) {
                 New event · {p.step} of {total}
               </p>
               <div className="flex gap-1.5" aria-hidden>
-                {STEP_NAMES.map((name, i) => (
+                {p.steps.map((name, i) => (
                   <span key={name} className={cx("h-1 flex-1 rounded-[2px]", i < p.step ? "bg-fg" : "bg-border")} />
                 ))}
               </div>

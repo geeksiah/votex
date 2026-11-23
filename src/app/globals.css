@@ -37,10 +37,18 @@
 
 @keyframes vx-loading {
   from {
+    opacity: 1;
     transform: translateX(-100%);
   }
   to {
-    transform: translateX(300%);
+    opacity: 1;
+    transform: translateX(290%);
+  }
+}
+
+@keyframes vx-fade-in {
+  to {
+    opacity: 0.4;
   }
 }
 

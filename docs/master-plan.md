@@ -318,6 +318,13 @@ Adaptive; designed at 1280 first, then redesigned (not shrunk) for tablet and mo
 | O18 | Team & roles | Invite |
 | O19 | Activity & fraud flags (audit log) | Review |
 
+### Decided 23 Nov 2026 (Figma "O3 · By event type", "O5 · Rounds", "Loading and busy states", "Shell · Account and sign out")
+- **Wizard steps per type:** Awards or pageant 7 (Type, Basics, Look, Rounds, Rules, Price, Review). Election 5 (no Rounds, no Price; one person one vote and results after close are fixed). Nominations only 5 (dates are nomination dates; the fee sits in Rules). Tickets only 4 (Basics asks for the date and venue; ticket types come after saving). The count and the rail show only that type's steps.
+- **Rounds:** step 4 starts with one round (Public vote, the event dates, 100%). A round has a name, who decides (public vote or judges), opens and closes, a share of the final result, who moves on (from round 2) and an optional price (public rounds only). Rounds cannot overlap and shares must add up to 100% before Continue.
+- **Buttons:** primary buttons are at least 200 wide (Large) and 160 (Medium) on tablet and desktop; phones fill the width. Busy buttons keep their width and show a spinner.
+- **Loading:** a thin bar at the top when a page takes longer than 0.2 s. Save draft shows "Saving…", then "Draft saved" for 3 s, or "Not saved. Try again".
+- **Sign out** sits in a small menu on the person (desktop sidebar, tablet avatar menu, phone sheet), never in the main menu, with no confirmation.
+
 ### Platform admin (Event Peepo staff)
 Tenants & verification (KYC), fee settings, disputes/refunds, payouts approval/holds, fraud review, system health, status page, USSD codes (base code, event numbers, dedicated codes).
 
@@ -423,3 +430,7 @@ v1 "Primitives" and "Color" variable collections are still in the file; they are
 9. Ticketing: same Paystack rails and fee model as votes? Refund policy?
 10. Offline/cash votes: which roles may enter them, and is evidence (photo/receipt) mandatory?
 11. Custom domains: how many tenants will want them (affects pricing tier)?
+12. Elections: add a run-off round in the wizard, or only later from the dashboard? (Suggested: later.)
+13. Where does Rounds live in the event menu: its own item, or inside Voting rules?
+14. After voting opens, can a round that has votes be deleted? (Suggested: no, only closed early.)
+15. Election "How voters sign in" and nomination "Who can nominate": which choices should the list offer? The build offers Member ID + email or phone code, email code, phone code; and anyone with a code, or only invited people.

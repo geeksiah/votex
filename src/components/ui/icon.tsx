@@ -93,6 +93,25 @@ const paths = {
       <circle cx="18.5" cy="12" r="1.6" />
     </g>
   ),
+  grip: <path d="M9 6h.01M15 6h.01M9 12h.01M15 12h.01M9 18h.01M15 18h.01" strokeWidth="3" strokeLinecap="round" />,
+  "arrow-up": <path d="M12 19V5M18 11l-6-6-6 6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />,
+  "arrow-down": <path d="M12 5v14M18 13l-6 6-6-6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />,
+  "sign-out": (
+    <path
+      d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M16 8l4 4-4 4M20 12H10"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  ),
+  trash: (
+    <path
+      d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  ),
 } as const;
 
 export type IconName = keyof typeof paths;

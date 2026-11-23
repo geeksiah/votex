@@ -26,25 +26,54 @@ const events: EventListItem[] = [
   { id: "5", name: "Kente Queen 2025", type: "paid_voting", status: "closed", opens_at: "2025-11-20T08:00:00Z", closes_at: "2025-12-14T20:00:00Z", accent: "#c2410c", coverUrl: "/dev-samples/cover-3.png", logoUrl: null },
 ];
 
-const draft = (step: number): WizardDraft => ({
+type Sample = "awards" | "awards3" | "election" | "nominations" | "tickets";
+
+const SAMPLES: Record<Sample, Partial<WizardDraft>> = {
+  awards: { type: "paid_voting", name: "Akoma Music Awards 2026", slug: "akoma26", opensAt: "2026-12-01T09:00:00Z", closesAt: "2026-12-20T21:00:00Z" },
+  awards3: {
+    type: "paid_voting",
+    name: "Akoma Music Awards 2026",
+    slug: "akoma26",
+    opensAt: "2026-12-01T09:00:00Z",
+    closesAt: "2026-12-23T21:00:00Z",
+    rounds: [
+      { name: "Nominee vote", mode: "public", opensAt: "2026-12-01T09:00:00Z", closesAt: "2026-12-10T21:00:00Z", share: 30, advanceMode: "all", advanceCount: null, priceMinor: null },
+      { name: "Top 5 vote", mode: "public", opensAt: "2026-12-12T09:00:00Z", closesAt: "2026-12-20T21:00:00Z", share: 40, advanceMode: "top", advanceCount: 5, priceMinor: 200 },
+      { name: "Judges", mode: "judges", opensAt: "2026-12-21T09:00:00Z", closesAt: "2026-12-23T21:00:00Z", share: 30, advanceMode: "top", advanceCount: 5, priceMinor: null },
+    ],
+  },
+  election: { type: "election", name: "Ridgeview College SRC Elections 2026", slug: "ridgeview-src", opensAt: "2026-11-28T08:00:00Z", closesAt: "2026-11-29T18:00:00Z" },
+  nominations: { type: "nominations", name: "UG Campus Awards 2027", slug: "ugca27", opensAt: "2027-01-04T08:00:00Z", closesAt: "2027-01-31T23:59:00Z", nominationFeeMinor: 500 },
+  tickets: { type: "tickets", name: "Asanteman Highlife Night 2026", slug: "highlife26", opensAt: "2026-12-19T19:00:00Z", closesAt: null, venue: "National Theatre, Accra" },
+};
+
+const draft = (sample: Sample, step: number): WizardDraft => ({
   id: "preview",
   type: "paid_voting",
-  name: step === 1 ? "Untitled event" : "Akoma Music Awards 2026",
-  slug: "akoma26",
-  opensAt: "2026-12-01T09:00:00Z",
-  closesAt: "2026-12-20T21:00:00Z",
+  name: "",
+  slug: "",
+  opensAt: null,
+  closesAt: null,
+  venue: null,
   coverPath: null,
   coverUrl: null,
   accent: "#c2410c",
   showLiveResults: true,
   hideLastHours: 24,
   maxVotesPerPhone: null,
+  voterSignIn: "member_id_email",
+  allowBlankChoice: false,
+  nominators: "anyone_code",
+  nominationFeeMinor: null,
+  allowSelfNomination: true,
   priceMinor: 100,
   quickPicks: [1, 10, 50, 100],
   defaultPick: 10,
+  rounds: [],
+  ...SAMPLES[sample],
+  ...(step === 1 ? { name: "Untitled event", slug: "draft-preview" } : {}),
   step,
 });
-
 export default async function DevScreen({ params }: { params: Promise<{ screen: string }> }) {
   if (process.env.NODE_ENV !== "development") notFound();
   const { screen } = await params;
@@ -54,7 +83,8 @@ export default async function DevScreen({ params }: { params: Promise<{ screen: 
   if (screen === "brand") return <BrandForm organiser={organiser} />;
   if (screen === "events") return <EventsView organisation={organiser.name} person={person} canCreate events={events} filter="all" />;
   if (screen === "events-empty") return <EventsView organisation={organiser.name} person={person} canCreate events={[]} filter="all" />;
-  const m = /^wizard-([1-7])$/.exec(screen);
-  if (m) return <Wizard organiser={organiser} siteHost="votex.eventpeepo.com" draft={draft(Number(m[1]))} preview />;
+  // wizard-3 (awards), wizard-election-4, wizard-awards3-4 (three rounds), …
+  const m = /^wizard-(?:(awards|awards3|election|nominations|tickets)-)?([1-7])$/.exec(screen);
+  if (m) return <Wizard organiser={organiser} siteHost="votex.eventpeepo.com" draft={draft((m[1] as Sample) ?? "awards", Number(m[2]))} preview />;
   notFound();
 }

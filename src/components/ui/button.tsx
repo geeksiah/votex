@@ -15,6 +15,8 @@ export function buttonClass({ variant = "primary", size = "lg", block = false }:
     "disabled:opacity-40 aria-disabled:opacity-40 disabled:cursor-not-allowed aria-disabled:pointer-events-none",
     size === "lg" ? "h-14 px-6 vx-body-lg-strong" : "h-11 px-4 vx-body-md-strong",
     variant === "primary" && "bg-primary text-on-primary hover:opacity-90",
+    // Tablet and desktop: primary buttons are never narrower than Large 200 / Medium 160 (approved 23 Nov 2026).
+    variant === "primary" && (size === "lg" ? "md:min-w-[200px]" : "md:min-w-[160px]"),
     variant === "secondary" && "border border-border-strong text-fg hover:bg-subtle",
     variant === "quiet" && "text-fg hover:bg-subtle",
     block && "w-full",

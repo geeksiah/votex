@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { EventLogo } from "@/components/ui/badges";
 import { buttonClass } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -13,18 +13,28 @@ import { dateRange } from "@/lib/event-display";
 import {
   DEFAULT_QUICK_PICKS,
   EXAMPLE_FEE_BASIS_POINTS,
+  NOMINATORS,
   SLUG_PATTERN,
+  STEPS,
+  STEP_LABEL,
   TYPE_LABEL,
+  VOTER_SIGN_IN,
   hasPrice,
+  roundProblems,
   slugFromName,
+  type RoundDraft,
+  type StepKey,
   type WizardType,
 } from "@/lib/event-setup";
 import { formatMoney, parseMoney, percentOf } from "@/lib/money";
 import { createClient } from "@/lib/supabase/client";
 import { countryZone, isoToZoned, pickerDate, zonedToIso } from "@/lib/zoned-time";
-import { WizardFrame } from "./wizard-frame";
+import { RoundsStep, WinnerSplit } from "./rounds";
+import { WizardFrame, type DraftState } from "./wizard-frame";
+import { DateField, Row, SelectField, Toggle } from "./wizard-fields";
 
-// O3 · Create an event (approved 22 Nov 2026). One decision per step; "Save draft" works on every step.
+// O3 · Create an event (approved 22 Nov 2026) with the steps for each type and rounds (approved 23 Nov 2026).
+// One decision per step; "Save draft" works on every step and keeps the organiser on the page.
 
 export type WizardOrganiser = {
   id: string;
@@ -35,6 +45,17 @@ export type WizardOrganiser = {
   currency: string;
 };
 
+export type WizardRound = {
+  name: string;
+  mode: "public" | "judges";
+  opensAt: string | null;
+  closesAt: string | null;
+  share: number;
+  advanceMode: "all" | "top" | "pick";
+  advanceCount: number | null;
+  priceMinor: number | null;
+};
+
 export type WizardDraft = {
   id: string;
   type: WizardType;
@@ -42,15 +63,22 @@ export type WizardDraft = {
   slug: string;
   opensAt: string | null;
   closesAt: string | null;
+  venue: string | null;
   coverPath: string | null;
   coverUrl: string | null;
   accent: string | null;
   showLiveResults: boolean;
   hideLastHours: number | null;
   maxVotesPerPhone: number | null;
+  voterSignIn: string;
+  allowBlankChoice: boolean;
+  nominators: string;
+  nominationFeeMinor: number | null;
+  allowSelfNomination: boolean;
   priceMinor: number | null;
   quickPicks: number[];
   defaultPick: number;
+  rounds: WizardRound[];
   step: number;
 };
 
@@ -65,6 +93,20 @@ const TYPES: { value: WizardType; title: string; line: string; examples: string 
   { value: "tickets", title: "Tickets only", line: "Sell tickets and check guests in", examples: "Concerts, galas, conferences" },
 ];
 
+const NEXT_JOB: Record<WizardType, [string, string]> = {
+  paid_voting: ["Add categories next", "You can publish once you have at least one category with a contestant."],
+  election: ["Add positions next", "Then add candidates and the voter list. You can publish once each position has a candidate."],
+  nominations: ["Add categories next", "Then check the form. You can open nominations once you have one category."],
+  tickets: ["Add ticket types next", "You can publish once you have one ticket type."],
+};
+
+const PRIMARY: Record<WizardType, string> = {
+  paid_voting: "Save and add categories",
+  election: "Save and add positions",
+  nominations: "Save and add categories",
+  tickets: "Save and add tickets",
+};
+
 type Props = {
   organiser: WizardOrganiser;
   siteHost: string;
@@ -76,16 +118,23 @@ type Props = {
 export function Wizard({ organiser, siteHost, draft, preview }: Props) {
   const router = useRouter();
   const zone = countryZone(organiser.country);
+  const money = (minor: number) => formatMoney({ minor, currency: organiser.currency });
+  const local = (iso: string | null) => (iso ? isoToZoned(iso, zone.tz) : "");
+
   const [id, setId] = useState<string | null>(draft?.id ?? null);
-  const [step, setStep] = useState(draft?.step ?? 1);
-  const [furthest, setFurthest] = useState(draft?.step ?? 1);
   const [type, setType] = useState<WizardType>(draft?.type ?? "paid_voting");
+  const steps = STEPS[type];
+  const [index, setIndex] = useState(Math.min(Math.max((draft?.step ?? 1) - 1, 0), steps.length - 1));
+  const [furthest, setFurthest] = useState(index);
+  const step: StepKey = steps[Math.min(index, steps.length - 1)]!;
+
   const [name, setName] = useState(draft?.name === "Untitled event" ? "" : (draft?.name ?? ""));
   const [slug, setSlug] = useState(draft && !draft.slug.startsWith("draft-") ? draft.slug : "");
   const [slugEdited, setSlugEdited] = useState(Boolean(draft && !draft.slug.startsWith("draft-")));
   const [slugState, setSlugState] = useState<"idle" | "checking" | "free" | "taken" | "invalid">("idle");
-  const [opens, setOpens] = useState(draft?.opensAt ? isoToZoned(draft.opensAt, zone.tz) : "");
-  const [closes, setCloses] = useState(draft?.closesAt ? isoToZoned(draft.closesAt, zone.tz) : "");
+  const [opens, setOpens] = useState(local(draft?.opensAt ?? null));
+  const [closes, setCloses] = useState(local(draft?.closesAt ?? null));
+  const [venue, setVenue] = useState(draft?.venue ?? "");
   const [accent, setAccent] = useState((draft?.accent ?? organiser.accent ?? SWATCHES[0]!).toUpperCase());
   const [accentCode, setAccentCode] = useState(accent);
   const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -93,18 +142,38 @@ export function Wizard({ organiser, siteHost, draft, preview }: Props) {
   const [liveResults, setLiveResults] = useState(draft?.showLiveResults ?? true);
   const [hideLast, setHideLast] = useState(draft ? draft.hideLastHours !== null : true);
   const [limitPhone, setLimitPhone] = useState(draft ? draft.maxVotesPerPhone !== null : false);
-  const [priceText, setPriceText] = useState(
-    draft?.priceMinor != null ? formatMoney({ minor: draft.priceMinor, currency: organiser.currency }) : formatMoney({ minor: 100, currency: organiser.currency }),
-  );
+  const [signIn, setSignIn] = useState(draft?.voterSignIn ?? "member_id_email");
+  const [allowBlank, setAllowBlank] = useState(draft?.allowBlankChoice ?? false);
+  const [nominators, setNominators] = useState(draft?.nominators ?? "anyone_code");
+  const [feeOn, setFeeOn] = useState(draft ? draft.nominationFeeMinor !== null : false);
+  const [feeText, setFeeText] = useState(draft?.nominationFeeMinor != null ? money(draft.nominationFeeMinor) : money(500));
+  const [selfNomination, setSelfNomination] = useState(draft?.allowSelfNomination ?? true);
+  const [priceText, setPriceText] = useState(money(draft?.priceMinor ?? 100));
   const [picks] = useState<number[]>(draft?.quickPicks?.length ? draft.quickPicks : DEFAULT_QUICK_PICKS);
   const [defaultPick, setDefaultPick] = useState(draft?.defaultPick ?? 10);
+  const [rounds, setRounds] = useState<RoundDraft[]>(() =>
+    draft?.rounds.length
+      ? draft.rounds.map((r) => ({
+          key: crypto.randomUUID(),
+          name: r.name,
+          mode: r.mode,
+          opens: local(r.opensAt),
+          closes: local(r.closesAt),
+          share: r.share,
+          advanceMode: r.advanceMode,
+          advanceCount: r.advanceCount,
+          priceMinor: r.priceMinor,
+        }))
+      : [],
+  );
+  const [roundErrors, setRoundErrors] = useState<{ total?: string; dates: Record<string, string> }>({ dates: {} });
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
   const [busy, setBusy] = useState(false);
-  const [savingDraft, setSavingDraft] = useState(false);
+  const [draftState, setDraftState] = useState<DraftState>("idle");
   const coverInput = useRef<HTMLInputElement>(null);
 
   const priceMinor = parseMoney(priceText, organiser.currency);
-  const money = (minor: number) => formatMoney({ minor, currency: organiser.currency });
+  const feeMinor = parseMoney(feeText, organiser.currency);
   const accentValid = HEX.test(accentCode);
   const paid = hasPrice(type);
 
@@ -128,19 +197,45 @@ export function Wizard({ organiser, siteHost, draft, preview }: Props) {
     return () => clearTimeout(t);
   }, [slug, id, preview]);
 
-  function validate(s: number): boolean {
+  // Step 4 starts with one round: Public vote, the event dates, 100% (approved O5 rule).
+  useEffect(() => {
+    if (!paid) return;
+    setRounds((rs) => {
+      if (rs.length === 0) return [{ key: crypto.randomUUID(), name: "Public vote", mode: "public", opens, closes, share: 100, advanceMode: "all", advanceCount: null, priceMinor: null }];
+      // While there is one round it follows the event dates.
+      if (rs.length === 1 && (rs[0]!.opens !== opens || rs[0]!.closes !== closes)) return [{ ...rs[0]!, opens, closes }];
+      return rs;
+    });
+  }, [paid, opens, closes]);
+
+  // "Draft saved" shows for 3 seconds.
+  useEffect(() => {
+    if (draftState !== "saved") return;
+    const t = setTimeout(() => setDraftState("idle"), 3000);
+    return () => clearTimeout(t);
+  }, [draftState]);
+
+  function validate(s: StepKey): boolean {
     const e: Record<string, string | undefined> = {};
-    if (s === 2) {
+    if (s === "basics") {
       if (name.trim().length < 2) e.name = "Enter the event name, like Akoma Music Awards 2026";
       if (slugState === "invalid" || !slug) e.slug = "Use at least 3 letters, numbers or dashes";
       else if (slugState === "taken") e.slug = "This link is taken. Try another.";
-      if (!opens) e.opens = "Choose when voting opens";
-      if (!closes) e.closes = "Choose when voting closes";
-      if (opens && closes && closes <= opens) e.closes = "Voting must close after it opens";
+      if (!opens) e.opens = type === "tickets" ? "Choose when the event starts" : "Choose when it opens";
+      if (type !== "tickets") {
+        if (!closes) e.closes = "Choose when it closes";
+        if (opens && closes && closes <= opens) e.closes = "Pick a time after it opens";
+      }
     }
-    if (s === 3 && !accentValid) e.accent = "Enter a colour code like #C2410C";
-    if (s === 6 && paid && (priceMinor === null || priceMinor <= 0)) e.price = `Enter a price, like ${money(100)}`;
+    if (s === "look" && !accentValid) e.accent = "Enter a colour code like #C2410C";
+    if (s === "rules" && type === "nominations" && feeOn && (feeMinor === null || feeMinor <= 0)) e.fee = `Enter a fee, like ${money(500)}`;
+    if (s === "price" && (priceMinor === null || priceMinor <= 0)) e.price = `Enter a price, like ${money(100)}`;
     setErrors(e);
+    if (s === "rounds") {
+      const p = roundProblems(rounds);
+      setRoundErrors(p);
+      if (p.total || Object.keys(p.dates).length) return false;
+    }
     return Object.values(e).every((v) => !v);
   }
 
@@ -149,17 +244,28 @@ export function Wizard({ organiser, siteHost, draft, preview }: Props) {
     if (preview) return id ?? "preview";
     const supabase = createClient();
     if (!supabase) return null;
+    const iso = (v: string) => (v ? zonedToIso(v, zone.tz) : null);
+    const ordered = paid ? rounds : [];
+    // The event window runs from the first round opening to the last one closing.
+    const windowOpens = paid && ordered.length ? iso(ordered[0]!.opens) : iso(opens);
+    const windowCloses = type === "tickets" ? null : paid && ordered.length ? iso(ordered[ordered.length - 1]!.closes) : iso(closes);
     const row = {
       type,
       name: name.trim() || "Untitled event",
       slug: slug && slugState !== "taken" && slugState !== "invalid" ? slug : undefined,
-      opens_at: opens ? zonedToIso(opens, zone.tz) : null,
-      closes_at: closes ? zonedToIso(closes, zone.tz) : null,
+      opens_at: windowOpens,
+      closes_at: windowCloses,
+      venue: type === "tickets" ? venue.trim() || null : null,
       accent: accentValid ? accentCode.toLowerCase() : null,
-      show_live_results: liveResults,
-      hide_results_last_hours: hideLast ? 24 : null,
+      show_live_results: type === "election" ? false : liveResults,
+      hide_results_last_hours: type === "paid_voting" && hideLast ? 24 : null,
       ussd_enabled: false,
-      max_votes_per_phone: limitPhone ? 100 : null,
+      max_votes_per_phone: type === "paid_voting" && limitPhone ? 100 : null,
+      voter_sign_in: signIn,
+      allow_blank_choice: allowBlank,
+      nominators,
+      nomination_fee_minor: type === "nominations" && feeOn ? feeMinor : null,
+      allow_self_nomination: selfNomination,
       price_minor: paid && priceMinor !== null ? priceMinor : null,
       quick_picks: picks,
       default_pick: defaultPick,
@@ -181,12 +287,32 @@ export function Wizard({ organiser, siteHost, draft, preview }: Props) {
       if (error || !data) return null;
       eventId = data.id as string;
       setId(eventId);
-      await supabase.from("rounds").insert({ event_id: eventId, tenant_id: organiser.id, position: 1, name: "Public vote", opens_at: row.opens_at, closes_at: row.closes_at });
     } else {
       const { slug: s, ...rest } = row;
       const { error } = await supabase.from("events").update(s ? { ...rest, slug: s } : rest).eq("id", eventId);
       if (error) return null;
-      await supabase.from("rounds").update({ opens_at: row.opens_at, closes_at: row.closes_at }).eq("event_id", eventId).eq("position", 1);
+    }
+    // Drafts have no votes yet, so their rounds are simply written again in the current order.
+    const { error: clear } = await supabase.from("rounds").delete().eq("event_id", eventId);
+    if (clear) return null;
+    const roundRows = (paid ? ordered : [{ name: "Voting", mode: "public" as const, opens, closes, share: 100, advanceMode: "all" as const, advanceCount: null, priceMinor: null }]).map(
+      (r, i) => ({
+        event_id: eventId,
+        tenant_id: organiser.id,
+        position: i + 1,
+        name: r.name,
+        mode: r.mode,
+        opens_at: iso(r.opens),
+        closes_at: type === "tickets" ? null : iso(r.closes),
+        weight_pct: r.share,
+        advance_mode: i === 0 ? "all" : r.advanceMode,
+        advance_count: i === 0 ? null : r.advanceCount,
+        price_minor: r.mode === "public" ? r.priceMinor : null,
+      }),
+    );
+    if (type !== "tickets") {
+      const { error: ins } = await supabase.from("rounds").insert(roundRows);
+      if (ins) return null;
     }
     if (coverFile) {
       const ext = coverFile.type === "image/png" ? "png" : coverFile.type === "image/webp" ? "webp" : "jpg";
@@ -200,14 +326,17 @@ export function Wizard({ organiser, siteHost, draft, preview }: Props) {
     return eventId;
   }
 
-  const next = (s: number) => (s === 5 && !paid ? 7 : s + 1);
-  const prev = (s: number) => (s === 7 && !paid ? 5 : s - 1);
+  function go(to: number) {
+    setIndex(to);
+    setFurthest((f) => Math.max(f, to));
+    window.scrollTo({ top: 0 });
+  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (busy || !validate(step)) return;
     setBusy(true);
-    if (step === 7) {
+    if (step === "review") {
       const saved = await save(null);
       setBusy(false);
       if (!saved) return setErrors({ form: "We could not save this event. Try again." });
@@ -215,68 +344,78 @@ export function Wizard({ organiser, siteHost, draft, preview }: Props) {
       router.refresh();
       return;
     }
-    const to = next(step);
     // From Basics on there is enough to keep a draft, so each step is saved as the organiser goes.
-    if (step >= 2) {
-      const saved = await save(to);
+    if (index >= 1) {
+      const saved = await save(index + 2);
       if (!saved) {
         setBusy(false);
         return setErrors({ form: "We could not save your progress. Try again." });
       }
     }
     setBusy(false);
-    setStep(to);
-    setFurthest((f) => Math.max(f, to));
-    window.scrollTo({ top: 0 });
+    go(index + 1);
   }
 
   async function saveDraft() {
-    setSavingDraft(true);
-    const saved = await save(step);
-    setSavingDraft(false);
-    if (!saved) return setErrors({ form: "We could not save the draft. Try again." });
-    router.push("/events");
-    router.refresh();
+    setDraftState("saving");
+    const saved = await save(index + 1);
+    setDraftState(saved ? "saved" : "failed");
   }
 
-  const titles: Record<number, [string, string?]> = {
-    1: ["What are you running?", "You can add nominations or tickets to any event later."],
-    2: ["Name your event"],
-    3: ["Choose the look", "We filled this in from your organisation. Change it for this event if you like."],
-    4: ["Plan your rounds", "Most events need one. Add more for heats, finals or judges."],
-    5: ["Set the voting rules"],
-    6: ["Set the vote price"],
-    7: ["Check and save"],
+  const titles: Record<StepKey, [string, string?]> = {
+    type: ["What are you running?", "You can add nominations or tickets to any event later."],
+    basics: ["Name your event"],
+    look: ["Choose the look", "We filled this in from your organisation. Change it for this event if you like."],
+    rounds: ["Plan your rounds", "Most events need one. Add more for heats, finals or judges."],
+    rules: [type === "nominations" ? "Set the nomination rules" : "Set the voting rules"],
+    price: ["Set the vote price"],
+    review: ["Check and save"],
   };
-  const [title, subtitle] = titles[step]!;
+  const [title, subtitle] = titles[step];
   const fee = priceMinor ? percentOf(priceMinor, EXAMPLE_FEE_BASIS_POINTS) : 0;
   const style = accentValid ? ({ "--vx-color-accent": accentCode, "--vx-color-on-accent": onAccent(accentCode) } as React.CSSProperties) : undefined;
+  const range = opens && closes ? dateRange(new Date(zonedToIso(opens, zone.tz)), new Date(zonedToIso(closes, zone.tz)), zone.tz) : "Not set";
+  const [jobTitle, jobLine] = NEXT_JOB[type];
+  const dateLabels: [string, string] = type === "nominations" ? ["Nominations open", "Nominations close"] : ["Voting opens", "Voting closes"];
+
+  let aside: React.ReactNode;
+  if (step === "price") aside = <VoterPreview price={priceMinor ?? 0} picks={picks} pick={defaultPick} money={money} />;
+  if (step === "rounds" && rounds.length > 1) aside = <WinnerSplit rounds={rounds} />;
 
   return (
     <form onSubmit={onSubmit} noValidate style={style}>
       <WizardFrame
-        step={step}
-        done={(n) => n < furthest || (n === 6 && !paid && furthest > 5)}
-        onStep={(n) => setStep(n)}
-        onBack={() => setStep(prev(step))}
+        steps={steps.map((s) => STEP_LABEL[s])}
+        step={index + 1}
+        done={(n) => n - 1 < furthest}
+        onStep={(n) => setIndex(n - 1)}
+        onBack={() => setIndex(Math.max(index - 1, 0))}
         onClose={() => router.push("/events")}
         onSaveDraft={saveDraft}
-        savingDraft={savingDraft}
+        draft={draftState}
         title={title}
         subtitle={subtitle}
-        primary={step === 7 ? "Save and add categories" : "Continue"}
+        primary={step === "review" ? PRIMARY[type] : "Continue"}
         busy={busy}
-        aside={step === 6 && paid ? <VoterPreview price={priceMinor ?? 0} picks={picks} pick={defaultPick} money={money} /> : undefined}
+        aside={aside}
       >
-        {step === 1 ? <TypeStep value={type} onChange={setType} /> : null}
+        {step === "type" ? (
+          <TypeStep
+            value={type}
+            onChange={(t) => {
+              setType(t);
+              setFurthest(0);
+            }}
+          />
+        ) : null}
 
-        {step === 2 ? (
+        {step === "basics" ? (
           <>
             <TextField
               label="Event name"
               autoFocus
               maxLength={120}
-              placeholder="Akoma Music Awards 2026"
+              placeholder={type === "tickets" ? "Asanteman Highlife Night 2026" : "Akoma Music Awards 2026"}
               value={name}
               onChange={(e) => setName(e.target.value)}
               error={errors.name}
@@ -291,15 +430,30 @@ export function Wizard({ organiser, siteHost, draft, preview }: Props) {
               state={slugState}
               error={errors.slug}
             />
-            <div className="flex flex-col gap-5 md:flex-row md:gap-4">
-              <DateField label="Voting opens" value={opens} onChange={setOpens} tz={zone.tz} error={errors.opens} />
-              <DateField label="Voting closes" value={closes} onChange={setCloses} tz={zone.tz} error={errors.closes} />
-            </div>
-            <p className="-mt-2 hidden vx-caption text-muted md:block">Times are in {zone.label}.</p>
+            {type === "tickets" ? (
+              <div className="flex flex-col gap-5 md:flex-row md:gap-4 lg:flex-col lg:gap-5">
+                <DateField label="Event starts" value={opens} onChange={setOpens} tz={zone.tz} error={errors.opens} />
+                <TextField
+                  className="flex-1"
+                  label="Venue"
+                  maxLength={120}
+                  placeholder="National Theatre, Accra"
+                  value={venue}
+                  onChange={(e) => setVenue(e.target.value)}
+                  helper="Shown on every ticket"
+                />
+              </div>
+            ) : (
+              <div className="flex flex-col gap-5 md:flex-row md:gap-4 lg:flex-col lg:gap-5">
+                <DateField label={dateLabels[0]} value={opens} onChange={setOpens} tz={zone.tz} error={errors.opens} />
+                <DateField label={dateLabels[1]} value={closes} onChange={setCloses} tz={zone.tz} error={errors.closes} />
+              </div>
+            )}
+            <p className="-mt-2 hidden vx-caption text-muted md:block lg:hidden">Times are in {zone.label}.</p>
           </>
         ) : null}
 
-        {step === 3 ? (
+        {step === "look" ? (
           <>
             <div className="flex flex-col gap-2">
               <span className="vx-body-md-medium text-fg">Cover photo</span>
@@ -355,26 +509,24 @@ export function Wizard({ organiser, siteHost, draft, preview }: Props) {
           </>
         ) : null}
 
-        {step === 4 ? (
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-3.5 rounded-md border border-border-strong bg-bg p-4">
-              <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-full bg-subtle vx-body-md-strong text-fg">
-                1
-              </span>
-              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                <span className="vx-body-md-strong text-fg">Public vote</span>
-                <span className="vx-caption text-muted">
-                  {[opens && closes ? dateRange(new Date(zonedToIso(opens, zone.tz)), new Date(zonedToIso(closes, zone.tz)), zone.tz) : null, paid ? "paid votes" : "votes", "100%"]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </span>
-              </span>
-            </div>
-          </div>
+        {step === "rounds" ? (
+          <RoundsStep
+            rounds={rounds}
+            onChange={(rs) => {
+              setRounds(rs);
+              setRoundErrors({ dates: {} });
+            }}
+            tz={zone.tz}
+            eventPrice={money(priceMinor ?? 100)}
+            money={money}
+            currency={organiser.currency}
+            totalError={roundErrors.total}
+            dateErrors={roundErrors.dates}
+          />
         ) : null}
 
-        {step === 5 ? (
-          <div className="flex flex-col">
+        {step === "rules" && type === "paid_voting" ? (
+          <div className="flex flex-col gap-5">
             <Toggle label="Show live results" note="Voters see counts as they come in" checked={liveResults} onChange={setLiveResults} />
             <Toggle label="Hide results in the last 24 hours" note="Keeps the finish a surprise" checked={hideLast} onChange={setHideLast} />
             <Toggle
@@ -386,7 +538,35 @@ export function Wizard({ organiser, siteHost, draft, preview }: Props) {
           </div>
         ) : null}
 
-        {step === 6 && paid ? (
+        {step === "rules" && type === "election" ? (
+          <div className="flex flex-col gap-5">
+            <Toggle label="One person, one vote" note="Each voter chooses once per position" checked fixed />
+            <Toggle label="Results after voting closes" note="Nobody sees counts before the end" checked fixed />
+            <SelectField label="How voters sign in" value={signIn} options={VOTER_SIGN_IN} onChange={setSignIn} />
+            <Toggle label="Allow a blank choice" note="Voters can skip a position" checked={allowBlank} onChange={setAllowBlank} />
+          </div>
+        ) : null}
+
+        {step === "rules" && type === "nominations" ? (
+          <div className="flex flex-col gap-5">
+            <SelectField label="Who can nominate" value={nominators} options={NOMINATORS} onChange={setNominators} />
+            <Toggle label="Charge a nomination fee" note="Paid by the person who nominates" checked={feeOn} onChange={setFeeOn} />
+            {feeOn ? (
+              <TextField
+                label="Fee per nomination"
+                inputMode="decimal"
+                value={feeText}
+                onChange={(e) => setFeeText(e.target.value)}
+                onBlur={() => feeMinor !== null && setFeeText(money(feeMinor))}
+                helper="Paid by mobile money or card"
+                error={errors.fee}
+              />
+            ) : null}
+            <Toggle label="Allow self-nomination" note="People can put their own name forward" checked={selfNomination} onChange={setSelfNomination} />
+          </div>
+        ) : null}
+
+        {step === "price" ? (
           <>
             <TextField
               label="Price per vote"
@@ -420,25 +600,45 @@ export function Wizard({ organiser, siteHost, draft, preview }: Props) {
           </>
         ) : null}
 
-        {step === 7 ? (
+        {step === "review" ? (
           <>
             <div className="flex flex-col rounded-md border border-border-strong bg-bg px-4 py-1">
               <Row label="Type" value={TYPE_LABEL[type]} divided />
               <Row label="Name" value={name.trim()} divided />
               <Row label="Link" value={`${siteHost}/${slug}`} divided />
-              <Row
-                label="Voting"
-                value={opens && closes ? dateRange(new Date(zonedToIso(opens, zone.tz)), new Date(zonedToIso(closes, zone.tz)), zone.tz) : "Not set"}
-                divided
-              />
-              <Row label="Rounds" value="1 · public vote" divided />
-              {paid ? <Row label="Price" value={`${money(priceMinor ?? 0)} per vote`} divided /> : null}
+              {type === "paid_voting" ? (
+                <>
+                  <Row label="Voting" value={range} divided />
+                  <Row label="Rounds" value={`${rounds.length} · ${rounds.map((r) => (r.mode === "public" ? "public vote" : "judges")).join(", ")}`} divided />
+                  <Row label="Price" value={`${money(priceMinor ?? 0)} per vote`} divided />
+                </>
+              ) : null}
+              {type === "election" ? (
+                <>
+                  <Row label="Voting" value={range} divided />
+                  <Row label="Sign in" value={VOTER_SIGN_IN.find((o) => o.value === signIn)?.short} divided />
+                  <Row label="Results" value="After voting closes" divided />
+                </>
+              ) : null}
+              {type === "nominations" ? (
+                <>
+                  <Row label="Nominations" value={range} divided />
+                  <Row label="Who" value={NOMINATORS.find((o) => o.value === nominators)?.short} divided />
+                  <Row label="Fee" value={feeOn && feeMinor ? `${money(feeMinor)} per nomination` : "No fee"} divided />
+                </>
+              ) : null}
+              {type === "tickets" ? (
+                <>
+                  <Row label="Date" value={opens ? pickerDate(zonedToIso(opens, zone.tz), zone.tz) : "Not set"} divided />
+                  <Row label="Venue" value={venue.trim() || "Not set"} divided />
+                </>
+              ) : null}
             </div>
             <div className="flex gap-3 rounded-md bg-info-bg p-4">
               <Icon name="alert" size={20} className="shrink-0 text-info-fg" />
               <div className="flex flex-col gap-0.5">
-                <p className="vx-body-md-strong text-fg">Add categories next</p>
-                <p className="vx-caption text-muted">You can publish once you have at least one category with a contestant.</p>
+                <p className="vx-body-md-strong text-fg">{jobTitle}</p>
+                <p className="vx-caption text-muted">{jobLine}</p>
               </div>
             </div>
           </>
@@ -543,45 +743,6 @@ function LinkField({
   );
 }
 
-function DateField({ label, value, onChange, tz, error }: { label: string; value: string; onChange: (v: string) => void; tz: string; error?: string }) {
-  return (
-    <div className="flex flex-1 flex-col gap-2">
-      <div
-        className={cx(
-          "relative flex h-14 items-center gap-2 rounded-md border bg-bg px-4",
-          error ? "border-danger-fg shadow-[inset_0_0_0_1px_var(--vx-color-danger-fg)]" : "border-border-strong focus-within:border-focus focus-within:shadow-[inset_0_0_0_1px_var(--vx-color-focus)]",
-        )}
-      >
-        <span className="flex min-w-0 flex-1 flex-col">
-          <span className="vx-caption text-muted">{label}</span>
-          <span className={cx("truncate vx-body-md-strong", value ? "text-fg" : "text-faint")}>
-            {value ? (
-              <>
-                <span className="md:hidden lg:inline">{pickerDate(zonedToIso(value, tz), tz)}</span>
-                <span className="hidden md:inline lg:hidden">{pickerDate(zonedToIso(value, tz), tz, false)}</span>
-              </>
-            ) : (
-              "Choose a date and time"
-            )}
-          </span>
-        </span>
-        <svg aria-hidden width="20" height="20" viewBox="0 0 20 20" fill="none" className="shrink-0 text-muted">
-          <path d="M5 7.5l5 5 5-5" stroke="currentColor" strokeWidth="1.67" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-        <input
-          type="datetime-local"
-          aria-label={label}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onClick={(e) => (e.currentTarget as HTMLInputElement & { showPicker?: () => void }).showPicker?.()}
-          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-        />
-      </div>
-      {error ? <p className="vx-caption-medium text-danger-fg">{error}</p> : null}
-    </div>
-  );
-}
-
 function ColourField({
   value,
   code,
@@ -630,36 +791,6 @@ function ColourField({
         error={error}
       />
     </fieldset>
-  );
-}
-
-function Toggle({ label, note, checked, onChange }: { label: string; note: string; checked: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <label className="flex cursor-pointer items-center gap-4 border-b border-border py-3.5">
-      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="vx-body-md-strong text-fg">{label}</span>
-        <span className="vx-caption text-muted">{note}</span>
-      </span>
-      <input type="checkbox" role="switch" checked={checked} onChange={(e) => onChange(e.target.checked)} className="peer sr-only" />
-      <span
-        aria-hidden
-        className={cx(
-          "flex h-[26px] w-11 shrink-0 items-center rounded-full px-[3px] transition-colors duration-150 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-focus",
-          checked ? "justify-end bg-primary" : "justify-start bg-border-strong",
-        )}
-      >
-        <span className="size-5 rounded-full bg-white" />
-      </span>
-    </label>
-  );
-}
-
-function Row({ label, value, strong, divided }: { label: string; value: ReactNode; strong?: boolean; divided?: boolean }) {
-  return (
-    <div className={cx("flex items-center gap-4", divided ? "border-b border-border py-3 last:border-b-0" : "py-2")}>
-      <span className={cx("flex-1", strong ? "vx-body-md-strong text-fg" : "vx-body-md text-muted")}>{label}</span>
-      <span className={cx("text-right", strong ? "vx-body-md-strong text-fg" : "vx-body-md-medium text-fg")}>{value}</span>
-    </div>
   );
 }
 
