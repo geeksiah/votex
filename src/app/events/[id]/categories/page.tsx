@@ -6,8 +6,9 @@ import { CategoriesView, type CategoryItem } from "./categories-view";
 export const metadata: Metadata = { title: "Categories" };
 export const dynamic = "force-dynamic";
 
-export default async function CategoriesPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function CategoriesPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ edit?: string }> }) {
   const { id } = await params;
+  const { edit } = await searchParams;
   const { supabase, user, role, organiser, event } = await requireEvent(id, `/events/${id}/categories`);
   const [{ data: cats }, { count: contestants }] = await Promise.all([
     supabase
@@ -39,6 +40,7 @@ export default async function CategoriesPage({ params }: { params: Promise<{ id:
         categories={items}
         contestants={contestants ?? 0}
         canEdit={role === "owner" || role === "admin"}
+        initialEdit={edit}
       />
     </EventShell>
   );

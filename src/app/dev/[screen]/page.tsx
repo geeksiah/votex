@@ -5,6 +5,18 @@ import { BrandForm } from "@/app/setup/brand/brand-form";
 import { OrganisationForm } from "@/app/setup/organisation/organisation-form";
 import { CategoriesView, type CategoryItem } from "@/app/events/[id]/categories/categories-view";
 import { EventShell } from "@/components/dashboard/event-shell";
+import { ContestantsView, type ContestantItem } from "@/app/events/[id]/contestants/contestants-view";
+
+const PEOPLE: [string, string, string[], number, string | null, boolean][] = [
+  ["Kobby Asiedu", "AMA-001", ["c3", "c0"], 5120, "/dev-samples/cover-1.png", true],
+  ["Adwoa Mensima", "AMA-002", ["c3"], 3370, "/dev-samples/cover-2.png", true],
+  ["Efua Mensah", "AMA-017", ["c6", "c8"], 2210, "/dev-samples/cover-3.png", true],
+  ["Ama Serwaa", "AMA-023", ["c8"], 1840, "/dev-samples/cover-2.png", true],
+  ["Akosua Boateng", "AMA-031", ["c5"], 1260, "/dev-samples/cover-3.png", true],
+  ["Yaw Darko", "AMA-005", ["c3"], 1250, null, true],
+  ["Abena Kyei", "AMA-006", ["c3"], 400, null, false],
+];
+const people: ContestantItem[] = PEOPLE.map(([name, code, categoryIds, votes, photoUrl, visible], i) => ({ id: `p${i}`, name, code, categoryIds, votes, photoUrl, visible, phone: null }));
 
 const CATS: [string, string, number, number, number | null][] = [
   ["Artiste of the Year", "Main awards", 8, 18240, 200],
@@ -116,6 +128,24 @@ export default async function DevScreen({ params }: { params: Promise<{ screen: 
         active="categories"
       >
         <CategoriesView event={{ id: "e1", tenantId: organiser.id, status: "draft", type: "paid_voting", currency: "GHS", priceMinor: 100 }} categories={categories} contestants={168} canEdit />
+      </EventShell>
+    );
+  if (screen === "contestants" || screen === "contestants-cat")
+    return (
+      <EventShell
+        organisation={organiser.name}
+        person={person}
+        event={{ id: "e1", name: "Akoma Music Awards 2026", status: "live", accent: "#c2410c", logoUrl: null }}
+        active="contestants"
+        bare={screen === "contestants-cat"}
+      >
+        <ContestantsView
+          event={{ id: "e1", tenantId: organiser.id, name: "Akoma Music Awards 2026" }}
+          contestants={people}
+          categories={categories.map((c) => ({ id: c.id, name: c.name }))}
+          initialCategory={screen === "contestants-cat" ? "c3" : "all"}
+          canEdit
+        />
       </EventShell>
     );
   if (screen === "events-empty") return <EventsView organisation={organiser.name} person={person} canCreate events={[]} filter="all" />;

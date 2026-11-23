@@ -267,3 +267,13 @@ describe("categories and contestants", () => {
     expect(await as(db, KOFI, () => one(`select email from public.contestant_contacts`))).toEqual([{ email: "akosua@example.com" }]);
   });
 });
+
+describe("contestant visibility", () => {
+  it("hidden and deleted contestants stay off public pages", async () => {
+    await as(db, KOFI, () => one(`update public.contestants set visible = false where code = 'MA-002'`));
+    const seen = await as(db, null, () => one<{ code: string }>(`select code from public.contestants where tenant_id = $1 order by code`, [akoma]));
+    expect(seen.map((r) => r.code)).toEqual(["MA-001"]);
+    const team = await as(db, KOFI, () => one<{ code: string }>(`select code from public.contestants where tenant_id = $1 order by code`, [akoma]));
+    expect(team.map((r) => r.code)).toEqual(["MA-001", "MA-002"]);
+  });
+});

@@ -20,11 +20,13 @@ type Props = {
   event: { id: string; name: string; status: string; accent: string | null; logoUrl: string | null };
   active: EventSection;
   children: ReactNode;
+  /** Phone: the page draws its own top bar and has no tab bar (e.g. contestants of one category). */
+  bare?: boolean;
 };
 
 const badge = (s: string) => s as EventStatus;
 
-export function EventShell({ organisation, person, event, active, children }: Props) {
+export function EventShell({ organisation, person, event, active, children, bare }: Props) {
   const base = `/events/${event.id}`;
   // Sections are links once they are built; the rest show where they will be.
   const items: Item[] = [
@@ -135,7 +137,7 @@ export function EventShell({ organisation, person, event, active, children }: Pr
       </div>
 
       {/* Phone top bar */}
-      <header className="sticky top-0 z-20 flex h-[60px] items-center gap-2.5 border-b border-border bg-bg px-5 md:hidden">
+      <header className={cx("sticky top-0 z-20 flex h-[60px] items-center gap-2.5 border-b border-border bg-bg px-5 md:hidden", bare && "max-md:hidden")}>
         <EventLogo name={event.name} size={32} src={event.logoUrl} accent={event.accent} />
         <span className="flex-1 truncate vx-body-md-strong text-fg">{event.name}</span>
         <button type="button" aria-label="More" onClick={() => setMore(true)} className="-mr-2 grid size-10 place-items-center rounded-sm text-fg hover:bg-subtle">
@@ -143,10 +145,10 @@ export function EventShell({ organisation, person, event, active, children }: Pr
         </button>
       </header>
 
-      <main className="flex min-w-0 flex-1 flex-col pb-24 md:pb-0">{children}</main>
+      <main className={cx("flex min-w-0 flex-1 flex-col md:pb-0", bare ? "pb-8" : "pb-24")}>{children}</main>
 
       {/* Phone tab bar */}
-      <nav aria-label="Event" className="fixed inset-x-0 bottom-0 z-20 flex border-t border-border bg-bg pt-2 pb-[max(28px,env(safe-area-inset-bottom))] md:hidden">
+      <nav aria-label="Event" className={cx("fixed inset-x-0 bottom-0 z-20 flex border-t border-border bg-bg pt-2 pb-[max(28px,env(safe-area-inset-bottom))] md:hidden", bare && "max-md:hidden")}>
         {phoneTabs.map((t) => {
           const on = t.key === active || (t.key === "categories" && active === "contestants");
           const href = t.key === "categories" ? `${base}/categories` : undefined;

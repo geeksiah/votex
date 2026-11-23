@@ -31,14 +31,26 @@ type Filter = "all" | "open" | "hidden" | "own";
 
 const num = (n: number) => new Intl.NumberFormat("en-GH").format(n);
 
-export function CategoriesView({ event, categories, contestants, canEdit }: { event: EventInfo; categories: CategoryItem[]; contestants: number; canEdit: boolean }) {
+export function CategoriesView({
+  event,
+  categories,
+  contestants,
+  canEdit,
+  initialEdit,
+}: {
+  event: EventInfo;
+  categories: CategoryItem[];
+  contestants: number;
+  canEdit: boolean;
+  initialEdit?: string;
+}) {
   const router = useRouter();
   const money = (m: number) => formatMoney({ minor: m, currency: event.currency });
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [selectMode, setSelectMode] = useState(false);
-  const [editing, setEditing] = useState<CategoryItem | "new" | null>(null);
+  const [editing, setEditing] = useState<CategoryItem | "new" | null>(() => (canEdit && initialEdit ? (categories.find((c) => c.id === initialEdit) ?? null) : null));
   const [dialog, setDialog] = useState<"delete" | "group" | "price" | null>(null);
   const [toast, setToast] = useState<{ text: string; undo?: () => void } | null>(null);
   const [order, setOrder] = useState(categories.map((c) => c.id));
@@ -336,7 +348,8 @@ export function CategoriesView({ event, categories, contestants, canEdit }: { ev
                       onPointerLeave={() => press.current && clearTimeout(press.current)}
                       onClick={() => {
                         if (selecting) return toggle(c.id);
-                        if (canEdit) setEditing(c);
+                        // Phone: a category opens its contestants (Figma "O7 · Mobile · Contestants").
+                        router.push(`/events/${event.id}/contestants?category=${c.id}`);
                       }}
                       className={cx("flex h-[76px] items-center gap-3 border-b border-border px-5 text-left select-none", on && "bg-subtle")}
                     >
