@@ -340,7 +340,8 @@ export function Wizard({ organiser, siteHost, draft, preview }: Props) {
       const saved = await save(null);
       setBusy(false);
       if (!saved) return setErrors({ form: "We could not save this event. Try again." });
-      router.push("/events");
+      // Awards and nominations go straight to their next job: categories.
+      router.push(type === "paid_voting" || type === "nominations" ? `/events/${saved}/categories` : "/events");
       router.refresh();
       return;
     }

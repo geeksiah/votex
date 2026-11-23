@@ -224,3 +224,46 @@ describe("event wizard", () => {
     await expect(as(db, null, () => one(`select public.event_slug_available('akoma26')`))).rejects.toThrow();
   });
 });
+
+describe("categories and contestants", () => {
+  const eventId = async (slug: string) =>
+    (await as(db, KOFI, () => one<{ id: string }>(`select id from public.events where slug = $1`, [slug])))[0]!.id;
+
+  it("owners add categories and contestants; codes are made from the event name", async () => {
+    const id = await eventId("miss-ashanti-2026");
+    const cat = await as(db, KOFI, async () => (await one<{ id: string }>(`insert into public.categories (event_id, tenant_id, name, group_name) values ($1, $2, 'Miss Kumasi', 'Regions') returning id`, [id, akoma]))[0]!.id);
+    const codes = await as(db, KOFI, () =>
+      one<{ code: string }>(`insert into public.contestants (event_id, tenant_id, name) values ($1, $2, 'Akosua Boateng'), ($1, $2, 'Efua Mensah') returning code`, [id, akoma]),
+    );
+    expect(codes.map((c) => c.code)).toEqual(["MA-001", "MA-002"]);
+    const kid = await as(db, KOFI, async () => (await one<{ id: string }>(`select id from public.contestants where code = 'MA-001'`))[0]!.id);
+    await as(db, KOFI, () => one(`insert into public.category_entries (category_id, contestant_id, tenant_id) values ($1, $2, $3)`, [cat, kid, akoma]));
+  });
+
+  it("viewers and other organisers cannot add or change them", async () => {
+    const id = await eventId("miss-ashanti-2026");
+    await expect(as(db, YAW, () => one(`insert into public.categories (event_id, tenant_id, name) values ($1, $2, 'Sneaky')`, [id, akoma]))).rejects.toThrow();
+    await expect(as(db, ESI, () => one(`insert into public.categories (event_id, tenant_id, name) values ($1, $2, 'Sneaky')`, [id, campus]))).rejects.toThrow();
+    const changed = await as(db, ESI, () => one(`update public.categories set name = 'Taken' where event_id = $1 returning id`, [id]));
+    expect(changed).toEqual([]);
+  });
+
+  it("an entry cannot link a category and a contestant from different events", async () => {
+    const live = await eventId("miss-ashanti-2026");
+    const draft = await eventId("ghana-gospel-awards");
+    const cat = await as(db, KOFI, async () => (await one<{ id: string }>(`insert into public.categories (event_id, tenant_id, name) values ($1, $2, 'Best Choir') returning id`, [draft, akoma]))[0]!.id);
+    const kid = await as(db, KOFI, async () => (await one<{ id: string }>(`select id from public.contestants where event_id = $1 limit 1`, [live]))[0]!.id);
+    await expect(as(db, KOFI, () => one(`insert into public.category_entries (category_id, contestant_id, tenant_id) values ($1, $2, $3)`, [cat, kid, akoma]))).rejects.toThrow();
+  });
+
+  it("visitors see published, visible categories but never contestants' contact details", async () => {
+    const kid = await as(db, KOFI, async () => (await one<{ id: string }>(`select id from public.contestants where code = 'MA-001'`))[0]!.id);
+    await as(db, KOFI, () => one(`insert into public.contestant_contacts (contestant_id, tenant_id, email) values ($1, $2, 'akosua@example.com')`, [kid, akoma]));
+    expect(await as(db, null, () => one(`select name from public.categories where name = 'Miss Kumasi'`))).toEqual([{ name: "Miss Kumasi" }]);
+    expect(await as(db, null, () => one(`select name from public.categories where name = 'Best Choir'`))).toEqual([]);
+    await expect(as(db, null, () => one(`select email from public.contestant_contacts`))).rejects.toThrow();
+    expect(await as(db, ESI, () => one(`select email from public.contestant_contacts`))).toEqual([]);
+    expect(await as(db, YAW, () => one(`select email from public.contestant_contacts`))).toEqual([]);
+    expect(await as(db, KOFI, () => one(`select email from public.contestant_contacts`))).toEqual([{ email: "akosua@example.com" }]);
+  });
+});

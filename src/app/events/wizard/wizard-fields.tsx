@@ -169,7 +169,9 @@ export function OptionCard({
   shortLine,
   selected,
   onSelect,
+  className,
 }: {
+  className?: string;
   title: string;
   line: string;
   /** Line used in the compact desktop card. */
@@ -184,7 +186,8 @@ export function OptionCard({
       aria-checked={selected}
       onClick={onSelect}
       className={cx(
-        "flex h-[76px] shrink-0 items-center gap-3.5 rounded-md bg-bg px-4 text-left md:flex-1",
+        "flex h-[76px] shrink-0 items-center gap-3.5 rounded-md bg-bg px-4 text-left",
+        className,
         shortLine && "lg:h-[50px]",
         selected ? "border-2 border-fg" : "border border-border-strong hover:bg-subtle",
       )}

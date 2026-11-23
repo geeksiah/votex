@@ -3,6 +3,31 @@ import { EventsView, type EventListItem } from "@/app/events/events-view";
 import { Wizard, type WizardDraft, type WizardOrganiser } from "@/app/events/wizard/wizard";
 import { BrandForm } from "@/app/setup/brand/brand-form";
 import { OrganisationForm } from "@/app/setup/organisation/organisation-form";
+import { CategoriesView, type CategoryItem } from "@/app/events/[id]/categories/categories-view";
+import { EventShell } from "@/components/dashboard/event-shell";
+
+const CATS: [string, string, number, number, number | null][] = [
+  ["Artiste of the Year", "Main awards", 8, 18240, 200],
+  ["Song of the Year", "Main awards", 10, 14870, 200],
+  ["Album of the Year", "Main awards", 6, 3210, null],
+  ["Best Afrobeats Song", "Genres", 5, 12480, null],
+  ["Best Highlife Song", "Genres", 6, 4312, null],
+  ["Best Gospel Song", "Genres", 7, 6045, null],
+  ["Best Female Vocalist", "Voices", 8, 5600, null],
+  ["Best Male Vocalist", "Voices", 8, 4870, null],
+  ["Best New Artiste", "Voices", 10, 7220, 50],
+  ["Best Music Video", "Craft", 6, 0, null],
+];
+const categories: CategoryItem[] = CATS.map(([name, group, contestants, votes, priceMinor], i) => ({
+  id: `c${i}`,
+  name,
+  group,
+  position: i + 1,
+  priceMinor,
+  visible: true,
+  contestants,
+  votes,
+}));
 
 // Local design check: signed-in screens with the sample content used in Figma, so each screen can be
 // compared side by side with its approved frame at 390, 768, 1024 and 1280. Never served in production.
@@ -82,6 +107,17 @@ export default async function DevScreen({ params }: { params: Promise<{ screen: 
   if (screen === "organisation") return <OrganisationForm />;
   if (screen === "brand") return <BrandForm organiser={organiser} />;
   if (screen === "events") return <EventsView organisation={organiser.name} person={person} canCreate events={events} filter="all" />;
+  if (screen === "categories")
+    return (
+      <EventShell
+        organisation={organiser.name}
+        person={person}
+        event={{ id: "e1", name: "Akoma Music Awards 2026", status: "live", accent: "#c2410c", logoUrl: null }}
+        active="categories"
+      >
+        <CategoriesView event={{ id: "e1", tenantId: organiser.id, status: "draft", type: "paid_voting", currency: "GHS", priceMinor: 100 }} categories={categories} contestants={168} canEdit />
+      </EventShell>
+    );
   if (screen === "events-empty") return <EventsView organisation={organiser.name} person={person} canCreate events={[]} filter="all" />;
   // wizard-3 (awards), wizard-election-4, wizard-awards3-4 (three rounds), …
   const m = /^wizard-(?:(awards|awards3|election|nominations|tickets)-)?([1-7])$/.exec(screen);

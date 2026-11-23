@@ -307,8 +307,8 @@ function RoundEditor({
           <div className="flex flex-col gap-2">
             <span className="vx-body-md-medium text-fg">Who decides</span>
             <div role="radiogroup" aria-label="Who decides" className="flex flex-col gap-3 md:flex-row md:gap-4">
-              <OptionCard title="Public vote" line="People pay to vote" shortLine="People pay" selected={mode === "public"} onSelect={() => setMode("public")} />
-              <OptionCard title="Judges" line="Judges give scores" shortLine="Judges score" selected={mode === "judges"} onSelect={() => setMode("judges")} />
+              <OptionCard title="Public vote" line="People pay to vote" shortLine="People pay" className="md:flex-1" selected={mode === "public"} onSelect={() => setMode("public")} />
+              <OptionCard title="Judges" line="Judges give scores" shortLine="Judges score" className="md:flex-1" selected={mode === "judges"} onSelect={() => setMode("judges")} />
             </div>
           </div>
           <div className="flex flex-col gap-5 md:flex-row md:gap-4">
