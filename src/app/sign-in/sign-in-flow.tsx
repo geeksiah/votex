@@ -14,12 +14,14 @@ import { authErrorMessage, isValidEmail, normaliseEmail, safeNext } from "./auth
 // Mobile: content top, action area pinned to the bottom. Desktop ≥1024: form side + image side.
 type Step = "email" | "code";
 
-export function SignInFlow({ next }: { next?: string }) {
+export function SignInFlow({ next, linkFailed }: { next?: string; linkFailed?: boolean }) {
   const router = useRouter();
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
-  const [error, setError] = useState<string>();
+  const [error, setError] = useState<string | undefined>(
+    linkFailed ? "This sign-in link has expired or was opened in another browser. Send a new code." : undefined,
+  );
   const [notice, setNotice] = useState<string>();
   const [busy, setBusy] = useState(false);
 
@@ -36,7 +38,12 @@ export function SignInFlow({ next }: { next?: string }) {
     }
     setBusy(true);
     setError(undefined);
-    const { error: e } = await supabase.auth.signInWithOtp({ email: address, options: { shouldCreateUser: true } });
+    const callback = new URL("/auth/callback", window.location.origin);
+    if (next) callback.searchParams.set("next", safeNext(next));
+    const { error: e } = await supabase.auth.signInWithOtp({
+      email: address,
+      options: { shouldCreateUser: true, emailRedirectTo: callback.toString() },
+    });
     setBusy(false);
     if (e) {
       setError(authErrorMessage(e));

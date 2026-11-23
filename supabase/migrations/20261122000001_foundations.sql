@@ -218,6 +218,14 @@ alter table public.tenant_members enable row level security;
 alter table public.events enable row level security;
 alter table public.audit_log enable row level security;
 
+-- Table access is granted explicitly (the project does not auto-grant new tables to the API roles).
+-- RLS policies below decide which rows each person reaches.
+grant usage on schema public to anon, authenticated;
+grant select on public.tenants, public.tenant_members, public.audit_log to authenticated;
+grant insert, update, delete on public.tenant_members to authenticated;
+grant select on public.events to anon, authenticated;
+grant insert, delete on public.events to authenticated;
+
 -- tenants: members read; owners and admins edit name, logo, accent. New organisers only via create_tenant().
 create policy tenants_select on public.tenants for select to authenticated
   using (private.is_member(id));

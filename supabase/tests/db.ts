@@ -14,11 +14,11 @@ const SUPABASE_STANDIN = `
     $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
   grant usage on schema auth to anon, authenticated;
   grant execute on function auth.uid() to anon, authenticated;
-  grant usage on schema public to anon, authenticated, service_role;
-  -- Supabase grants table access to these roles by default; RLS does the walling.
-  alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
-  alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
-  alter default privileges in schema public grant execute on functions to anon, authenticated, service_role;
+  -- The Votex project has "grant API access to new tables automatically" switched off, so tables start
+  -- with no grants and the migration must grant what it needs. Functions keep Postgres' default
+  -- (execute for PUBLIC), which is why the migration revokes it where needed.
+  grant all on all tables in schema public to service_role;
+  alter default privileges in schema public grant all on tables to service_role;
 `;
 
 export async function freshDb(): Promise<PGlite> {
