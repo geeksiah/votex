@@ -19,6 +19,8 @@ export type EventListItem = {
   accent: string | null;
   coverUrl: string | null;
   logoUrl: string | null;
+  /** Wizard step to reopen; null once the wizard is finished. */
+  setupStep: number | null;
 };
 
 export type EventFilter = "all" | EventStatusValue;
@@ -106,7 +108,7 @@ export function EventsView({ organisation, person, canCreate, events, filter }: 
 }
 
 function thirdLine(e: EventListItem): string {
-  if (e.status === "draft") return "Finish setting up";
+  if (e.status === "draft") return e.setupStep !== null ? "Finish setting up" : "Add categories and contestants";
   // Vote and voter counts arrive with the vote ledger (build step 3).
   if (e.type === "election") return "No voters on the list yet";
   return "No votes yet";
@@ -146,13 +148,12 @@ function EventCard({ event: e }: { event: EventListItem }) {
   );
   const cls =
     "flex items-center gap-3.5 overflow-hidden rounded-md border border-border bg-surface p-3.5 md:flex-col md:items-stretch md:gap-0 md:p-0";
-  // Drafts reopen the wizard. Published events open their overview once O4 is built.
-  return e.status === "draft" ? (
-    <Link href={`/events/${e.id}/setup`} className={cx(cls, "hover:border-border-strong")}>
+  // Unfinished drafts reopen the wizard; every other event opens its pages (Categories until O4 Overview is built).
+  const href = e.status === "draft" && e.setupStep !== null ? `/events/${e.id}/setup` : `/events/${e.id}/categories`;
+  return (
+    <Link href={href} className={cx(cls, "hover:border-border-strong")}>
       {body}
     </Link>
-  ) : (
-    <article className={cls}>{body}</article>
   );
 }
 

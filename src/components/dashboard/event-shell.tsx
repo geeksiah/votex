@@ -93,7 +93,7 @@ export function EventShell({ organisation, person, event, active, children, bare
                 {body}
               </Link>
             ) : (
-              <span key={it.key} aria-disabled="true" className={cls}>
+              <span key={it.key} aria-disabled="true" title="Coming soon" className={cx(cls, "cursor-default opacity-40")}>
                 {body}
               </span>
             );
@@ -131,7 +131,7 @@ export function EventShell({ organisation, person, event, active, children, bare
                 {body}
               </Link>
             ) : (
-              <span key={t} aria-disabled="true" className={cls}>
+              <span key={t} aria-disabled="true" className={cx(cls, "cursor-default opacity-40")}>
                 {body}
               </span>
             );
@@ -173,7 +173,7 @@ export function EventShell({ organisation, person, event, active, children, bare
               {body}
             </Link>
           ) : (
-            <span key={t.key} aria-disabled="true" className={cls}>
+            <span key={t.key} aria-disabled="true" className={cx(cls, "opacity-40")}>
               {body}
             </span>
           );
@@ -189,9 +189,17 @@ export function EventShell({ organisation, person, event, active, children, bare
               <Icon name="chevron-left" size={20} />
               All events
             </Link>
+            <Link href={`${base}/categories`} className="flex h-12 items-center gap-3 rounded-sm px-3 vx-body-lg-medium text-fg hover:bg-subtle">
+              <Icon name="list" size={20} />
+              Categories
+            </Link>
             <Link href={`${base}/contestants`} className="flex h-12 items-center gap-3 rounded-sm px-3 vx-body-lg-medium text-fg hover:bg-subtle">
               <Icon name="users" size={20} />
               Contestants
+            </Link>
+            <Link href={`${base}/contestants/import`} className="flex h-12 items-center gap-3 rounded-sm px-3 vx-body-lg-medium text-fg hover:bg-subtle">
+              <Icon name="arrow-up" size={20} />
+              Import contestants
             </Link>
             <form action="/sign-out" method="post">
               <button type="submit" className="flex h-12 w-full items-center gap-3 rounded-sm px-3 text-left vx-body-lg-medium text-fg hover:bg-subtle">

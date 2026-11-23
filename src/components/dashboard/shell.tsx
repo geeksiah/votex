@@ -50,7 +50,7 @@ export function DashboardShell({ organisation, person, active, children }: Shell
                 {body}
               </Link>
             ) : (
-              <span key={item.key} aria-disabled="true" className={cls}>
+              <span key={item.key} aria-disabled="true" title="Coming soon" className={cx(cls, "cursor-default opacity-40")}>
                 {body}
               </span>
             );

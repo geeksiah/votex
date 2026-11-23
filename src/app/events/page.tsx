@@ -12,7 +12,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
   const { status } = await searchParams;
   const { data } = await supabase
     .from("events")
-    .select("id, name, type, status, opens_at, closes_at, cover_path, logo_path, accent")
+    .select("id, name, type, status, opens_at, closes_at, cover_path, logo_path, accent, setup_step")
     .eq("tenant_id", organiser.id)
     .order("created_at", { ascending: false });
 
@@ -28,6 +28,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
     accent: e.accent ?? organiser.accent,
     coverUrl: img("event-covers", e.cover_path),
     logoUrl: img("event-logos", e.logo_path) ?? organiser.logoUrl,
+    setupStep: e.setup_step,
   }));
 
   return (

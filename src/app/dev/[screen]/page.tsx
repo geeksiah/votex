@@ -67,11 +67,11 @@ const organiser: WizardOrganiser & { logoPath: null } = {
 };
 
 const events: EventListItem[] = [
-  { id: "1", name: "Akoma Music Awards 2026", type: "paid_voting", status: "live", opens_at: "2026-11-06T08:00:00Z", closes_at: "2026-11-30T20:00:00Z", accent: "#c2410c", coverUrl: "/dev-samples/cover-1.png", logoUrl: null },
-  { id: "2", name: "Miss Golden Coast 2026", type: "paid_voting", status: "live", opens_at: "2026-11-10T08:00:00Z", closes_at: "2026-12-06T20:00:00Z", accent: "#c2410c", coverUrl: "/dev-samples/cover-2.png", logoUrl: null },
-  { id: "3", name: "Ridgeview College SRC Elections 2026", type: "election", status: "scheduled", opens_at: "2026-11-28T08:00:00Z", closes_at: "2026-11-28T18:00:00Z", accent: "#c2410c", coverUrl: null, logoUrl: null },
-  { id: "4", name: "Ghana SME Excellence Awards 2026", type: "paid_voting", status: "draft", opens_at: null, closes_at: null, accent: "#c2410c", coverUrl: null, logoUrl: null },
-  { id: "5", name: "Kente Queen 2025", type: "paid_voting", status: "closed", opens_at: "2025-11-20T08:00:00Z", closes_at: "2025-12-14T20:00:00Z", accent: "#c2410c", coverUrl: "/dev-samples/cover-3.png", logoUrl: null },
+  { id: "1", name: "Akoma Music Awards 2026", type: "paid_voting", status: "live", opens_at: "2026-11-06T08:00:00Z", closes_at: "2026-11-30T20:00:00Z", accent: "#c2410c", coverUrl: "/dev-samples/cover-1.png", logoUrl: null, setupStep: null },
+  { id: "2", name: "Miss Golden Coast 2026", type: "paid_voting", status: "live", opens_at: "2026-11-10T08:00:00Z", closes_at: "2026-12-06T20:00:00Z", accent: "#c2410c", coverUrl: "/dev-samples/cover-2.png", logoUrl: null, setupStep: null },
+  { id: "3", name: "Ridgeview College SRC Elections 2026", type: "election", status: "scheduled", opens_at: "2026-11-28T08:00:00Z", closes_at: "2026-11-28T18:00:00Z", accent: "#c2410c", coverUrl: null, logoUrl: null, setupStep: null },
+  { id: "4", name: "Ghana SME Excellence Awards 2026", type: "paid_voting", status: "draft", opens_at: null, closes_at: null, accent: "#c2410c", coverUrl: null, logoUrl: null, setupStep: null },
+  { id: "5", name: "Kente Queen 2025", type: "paid_voting", status: "closed", opens_at: "2025-11-20T08:00:00Z", closes_at: "2025-12-14T20:00:00Z", accent: "#c2410c", coverUrl: "/dev-samples/cover-3.png", logoUrl: null, setupStep: null },
 ];
 
 type Sample = "awards" | "awards3" | "election" | "nominations" | "tickets";
