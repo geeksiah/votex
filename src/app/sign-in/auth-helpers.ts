@@ -26,7 +26,12 @@ export function safeNext(next: string | undefined | null): string {
 /** Plain-language messages for Supabase Auth errors. Never blames the person. */
 export function authErrorMessage(error: { status?: number; code?: string; message?: string }): string {
   const code = error.code ?? "";
-  if (error.status === 429 || code === "over_email_send_rate_limit" || code === "over_request_rate_limit") {
+  // One email per address per minute: Supabase says "…you can only request this after 45 seconds."
+  if (code === "over_email_send_rate_limit") {
+    const seconds = Number(/after (\d+) seconds?/i.exec(error.message ?? "")?.[1]);
+    return seconds > 0 ? `Wait ${seconds} seconds, then send a new code.` : "Wait a minute, then send a new code.";
+  }
+  if (error.status === 429 || code === "over_request_rate_limit") {
     return "Too many tries. Wait a minute, then try again.";
   }
   if (code === "otp_expired" || code === "invalid_credentials" || /expired|invalid/i.test(error.message ?? "")) {

@@ -23,6 +23,16 @@ describe("sign-in helpers", () => {
 
   it("maps auth errors to plain language", () => {
     expect(authErrorMessage({ status: 429 })).toMatch(/^Too many tries/);
+    expect(
+      authErrorMessage({
+        status: 429,
+        code: "over_email_send_rate_limit",
+        message: "For security purposes, you can only request this after 45 seconds.",
+      }),
+    ).toBe("Wait 45 seconds, then send a new code.");
+    expect(authErrorMessage({ status: 429, code: "over_email_send_rate_limit" })).toBe(
+      "Wait a minute, then send a new code.",
+    );
     expect(authErrorMessage({ code: "otp_expired" })).toMatch(/wrong or has expired/);
     expect(authErrorMessage({ message: "boom" })).toBe("Something went wrong on our side. Try again.");
   });
